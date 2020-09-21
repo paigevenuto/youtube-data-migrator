@@ -1,0 +1,5 @@
+DROP DATABASE IF EXISTS ytmdb;
+
+CREATE DATABASE ytmdb;
+
+\c ytmdb

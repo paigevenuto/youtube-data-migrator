@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!--jQuery-->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+        <!--Google Platform Library-->
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+        <!-- Required styles for Material Web -->
+        <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+
+        <!-- Required Material Web JavaScript library -->
+        <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+        <!--Google Fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <!--Site Stylesheet-->
+        <link rel="stylesheet" href="static/ytmigrator.css" type="text/css" media="screen">
+        <script src="static/ytmigrator.js"></script>
+
+        <!--Google SignIn Client ID-->
+        <meta name="google-signin-client_id" content="672430455080-viiuujtpq0r09u0fe798kqp0i7oi2a00.apps.googleusercontent.com">
+
+    </head>
+
+    <body class="mdc-typography">
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
