@@ -11,7 +11,7 @@ import os
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ['FLASK_KEY']
 jwtkey = os.environ['jwtkey']
-oauth_secret = os.environ['oauth_secret']
+oauth_secret = os.environ['OAUTH_SECRET']
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ytmdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
