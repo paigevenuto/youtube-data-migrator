@@ -13,6 +13,7 @@ app.config["SECRET_KEY"] = os.environ['FLASK_KEY']
 jwtkey = os.environ['jwtkey']
 oauth_secret = os.environ['OAUTH_SECRET']
 DATABASE_URL = os.environ['DATABASE_URL']
+PORT = os.environ['PORT']
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -86,4 +87,4 @@ def signup():
 def dashboard():
     return "dashboard"
 
-serve(app, port=80)
+serve(app, port=PORT)
