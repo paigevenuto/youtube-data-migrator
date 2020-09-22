@@ -6,10 +6,12 @@ from flask_bcrypt import Bcrypt
 import datetime
 import jwt
 from functools import wraps
-from keys import FLASK_KEY, jwtkey
+import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = FLASK_KEY
+app.config["SECRET_KEY"] = os.environ['FLASK_KEY']
+jwtkey = os.environ['jwtkey']
+oauth_secret = os.environ['oauth_secret']
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ytmdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
