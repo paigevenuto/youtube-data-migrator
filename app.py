@@ -1,3 +1,4 @@
+from waitress import serve
 from flask import Flask, render_template, request, redirect, session, flash, jsonify
 from forms import AddLoginForm, AddSignUpForm
 from models import db, connect_db, User, Subscription, LikedVideo, Watchlater, AddedPlaylist, UserPlaylist, PlaylistVideo
@@ -81,3 +82,5 @@ def signup():
 @login_required
 def dashboard():
     return "dashboard"
+
+serve(app, port=5000)
