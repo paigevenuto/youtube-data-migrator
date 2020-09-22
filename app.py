@@ -12,8 +12,9 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ['FLASK_KEY']
 jwtkey = os.environ['jwtkey']
 oauth_secret = os.environ['OAUTH_SECRET']
+DATABASE_URL = os.environ['DATABASE_URL']
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ytmdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///' + DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 SESSION_COOKIE_SAMESITE = 'Strict'
