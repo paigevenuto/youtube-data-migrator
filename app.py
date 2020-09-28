@@ -124,9 +124,10 @@ def dashboard():
     authorization_url = ytmapi.get_authorization_url()
 
     # Save current state to user's session
-    session['state'] = authorization_url.state
+    session['state'] = authorization_url[1]
+    url = authorization_url[0]
 
-    return render_template('dashboard.html', authorization_url=authorization_url[0])
+    return render_template('dashboard.html', authorization_url=url)
 
 @app.route('/auth')
 @login_required
