@@ -65,6 +65,8 @@ def login():
             return redirect("/dashboard")
     return render_template('login.html', form=form)
     
+test = 'test'
+
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     form = AddSignUpForm()
@@ -76,11 +78,14 @@ def signup():
         privacyAgree = form.privacyAgree.data
         
         # Check if user already exists
-        user = User.query.filter_by(username=username).first_or_404()
+        try:
+            userExists = User.query.filter_by(username=username).first_or_404()
+            if bool(userExists):
+                userExists = True
+        except:
+            userExists = False
 
-        # Check if user agrees to priacy policy
-        if !user and privacyAgree
-
+        if userExists and privacyAgree:
             # Hash password
             hash = bcrypt.generate_password_hash(password)
             hashutf = hash.decode("utf8")
@@ -100,7 +105,9 @@ def signup():
                     }
             jwttoken = jwt.encode(token, JWT_KEY)
             session['auth'] = jwttoken
-        return redirect("/dashboard")
+            return redirect("/dashboard")
+        else:
+            return 'username taken'
     else:
         return render_template('signup.html', form=form)
 
