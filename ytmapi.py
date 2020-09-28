@@ -60,7 +60,7 @@ def list_subscriptions(token):
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
         scopes=SCOPES)
-        credentials = token
+    credentials = token
     # Build the service object
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
