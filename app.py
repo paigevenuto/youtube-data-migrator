@@ -85,7 +85,7 @@ def signup():
         except:
             userExists = False
 
-        if userExists and privacyAgree:
+        if not userExists and privacyAgree:
             # Hash password
             hash = bcrypt.generate_password_hash(password)
             hashutf = hash.decode("utf8")
