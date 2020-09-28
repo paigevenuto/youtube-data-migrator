@@ -1,40 +1,64 @@
-import requests
-
-resp = requests.get(
-            "https://itunes.apple.com/search",
-            params={"term": "billy bragg", "limit": 3}
-       )
-
-
-GET https://www.googleapis.com/youtube/v3/subscriptions
-
-
-# -*- coding: utf-8 -*-
-
-# Sample Python code for youtube.subscriptions.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/guides/code_samples#python
-
 import os
-
+import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
-scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
+# Get secrets from environment
+GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
+
+# Google project config
+GOOGLE_CLIENT_ID = '672430455080-viiuujtpq0r09u0fe798kqp0i7oi2a00.apps.googleusercontent.com'
+GOOGLE_PROJECT_ID = 'youtube-data-migrator'
+GOOGLE_REDIRECT_URIS = ["https://yt-data-migrator.herokuapp.com"]
+GOOGLE_JAVASCRIPT_ORIGINS = ["https://yt-data-migrator.herokuapp.com"]
+
+# Client configuration for an OAuth 2.0 web server application
+# (cf. https://developers.google.com/identity/protocols/OAuth2WebServer)
+CLIENT_CONFIG = {'web': {
+    'client_id': GOOGLE_CLIENT_ID,
+    'project_id': GOOGLE_PROJECT_ID,
+    'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
+    'token_uri': 'https://www.googleapis.com/oauth2/v3/token',
+    'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',
+    'client_secret': GOOGLE_CLIENT_SECRET,
+    'redirect_uris': GOOGLE_REDIRECT_URIS,
+    'javascript_origins': GOOGLE_JAVASCRIPT_ORIGINS}}
+
+# This scope will allow the application to manage your calendars
+SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
+
+def get_authorization_url():
+    # Use the information in the client_secret.json to identify
+    # the application requesting authorization.
+    flow = google_auth_oauthlib.flow.Flow.from_client_config(
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES)
+
+    # Indicate where the API server will redirect the user after the user completes
+    # the authorization flow. The redirect URI is required.
+    flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth'
+    
+    # Generate URL for request to Google's OAuth 2.0 server.
+    # Use kwargs to set optional request parameters.
+    authorization_url, state = flow.authorization_url(
+    # Enable offline access so that you can refresh an access token without
+    # re-prompting the user for permission. Recommended for web server apps.
+    access_type='offline',
+    # Enable incremental authorization. Recommended as a best practice.
+    include_granted_scopes='true')
+
+    return authorization_url, state
 
 def main():
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
+    
     api_service_name = "youtube"
     api_version = "v3"
-    client_secrets_file = "YOUR_CLIENT_SECRET_FILE.json"
 
     # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-        client_secrets_file, scopes)
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
+
+            client_config=CLIENT_CONFIG, scopes=SCOPES)
     credentials = flow.run_console()
     # Build the service object
     youtube = googleapiclient.discovery.build(
@@ -47,6 +71,8 @@ def main():
     response = request.execute()
 
     print(response)
+
+
 
 if __name__ == "__main__":
     main()

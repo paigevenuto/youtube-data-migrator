@@ -9,12 +9,14 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
+
+# Get secrets from environment
 app.config["SECRET_KEY"] = os.environ['FLASK_KEY']
-jwtkey = os.environ['jwtkey']
-oauth_secret = os.environ['OAUTH_SECRET']
+JWT_KEY = os.environ['JWT_KEY']
 DATABASE_URL = os.environ['DATABASE_URL']
 PORT = os.environ['PORT']
 
+# App config
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -30,7 +32,7 @@ def login_required(function):
     def wrapper(*args, **kwargs):
         try:
             authtoken = session['auth']
-            authtoken = jwt.decode(authtoken, jwtkey)
+            authtoken = jwt.decode(authtoken, JWT_KEY)
             if authtoken['user']:
                 return function()
         except:
@@ -58,7 +60,7 @@ def login():
                     'user' : username,
                     'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
                     }
-            jwttoken = jwt.encode(token, jwtkey)
+            jwttoken = jwt.encode(token, JWT_KEY)
             session['auth'] = jwttoken
             return redirect("/dashboard")
     return render_template('login.html', form=form)
@@ -67,17 +69,37 @@ def login():
 def signup():
     form = AddSignUpForm()
     if form.validate_on_submit():
+
+        # Get form values
         username = form.username.data
         password = form.password.data
         privacyAgree = form.privacyAgree.data
-        hash = bcrypt.generate_password_hash(password)
-        hashutf = hash.decode("utf8")
-        newuser = User(
-                username = username,
-                password_hash = hashutf
-                )
-        db.session.add(newuser)
-        db.session.commit()
+        
+        # Check if user already exists
+        user = User.query.filter_by(username=username).first_or_404()
+
+        # Check if user agrees to priacy policy
+        if !user and privacyAgree
+
+            # Hash password
+            hash = bcrypt.generate_password_hash(password)
+            hashutf = hash.decode("utf8")
+
+            # Save user to database
+            newuser = User(
+                    username = username,
+                    password_hash = hashutf
+                    )
+            db.session.add(newuser)
+            db.session.commit()
+
+            # Generate login token
+            token = {
+                    'user' : username,
+                    'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
+                    }
+            jwttoken = jwt.encode(token, JWT_KEY)
+            session['auth'] = jwttoken
         return redirect("/dashboard")
     else:
         return render_template('signup.html', form=form)
