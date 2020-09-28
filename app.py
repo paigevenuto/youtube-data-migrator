@@ -44,7 +44,9 @@ def login_required(function):
 @app.route('/')
 def mainpage():
     try:
-        if session['auth']:
+        authtoken = session['auth']
+        authtoken = jwt.decode(authtoken, JWT_KEY)
+        if authtoken['user']:
             return redirect('/dashboard')
     except:
         return render_template('welcome.html')
