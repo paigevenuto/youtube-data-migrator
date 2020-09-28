@@ -7,6 +7,7 @@ import datetime
 import jwt
 from functools import wraps
 import os
+import ytmapi
 
 app = Flask(__name__)
 
@@ -114,6 +115,7 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return "dashboard"
+    authorization_url = ytmapi.get_authorization_url()
+    return render_template('dashboard.html', authorization_url=authorization_url[0])
 
 serve(app, port=PORT)
