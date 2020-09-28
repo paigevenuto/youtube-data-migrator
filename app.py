@@ -130,7 +130,6 @@ def dashboard():
     return render_template('dashboard.html', authorization_url=url)
 
 @app.route('/auth')
-@login_required
 def auth():
     # Ensure that the request is not a forgery and that the user sending
     # this connect request is the expected user.
