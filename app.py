@@ -43,6 +43,11 @@ def login_required(function):
 
 @app.route('/')
 def mainpage():
+    try:
+        if session['auth']:
+            return redirect('/dashboard')
+    except:
+        return render_template('welcome.html')
     return render_template('welcome.html')
 
 @app.route('/learnmore')
@@ -66,8 +71,6 @@ def login():
             return redirect("/dashboard")
     return render_template('login.html', form=form)
     
-test = 'test'
-
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     form = AddSignUpForm()
@@ -115,7 +118,34 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Generate authorization_url and state token
     authorization_url = ytmapi.get_authorization_url()
+
+    # Save current state to user's session
+    session['state'] = authorization_url.state
+
     return render_template('dashboard.html', authorization_url=authorization_url[0])
+
+@app.route('/auth')
+@login_required
+def auth():
+    # Ensure that the request is not a forgery and that the user sending
+    # this connect request is the expected user.
+    if request.args.get('state', '') != session['state']:
+      response = make_response(json.dumps('Invalid state parameter.'), 401)
+      response.headers['Content-Type'] = 'application/json'
+      return response
+
+    # Retreive auth code from query or return error
+    auth_code = request.args.get('code', '')
+    if auth_code == '':
+      response = make_response(json.dumps(request.args['error']), 401)
+      response.headers['Content-Type'] = 'application/json'
+      return response
+
+    # Turn auth code into an access token
+    access_token = ytmapi.get_access_token(auth_code, request.args['state'])
+
+    return 'access token=' + access_token
 
 serve(app, port=PORT)

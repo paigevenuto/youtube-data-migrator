@@ -3,6 +3,7 @@ import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
+import flask
 
 # Get secrets from environment
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
@@ -50,16 +51,16 @@ def get_authorization_url():
 
     return authorization_url, state
 
-def main():
+def list_subscriptions(token):
     
     api_service_name = "youtube"
     api_version = "v3"
 
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
-
-            client_config=CLIENT_CONFIG, scopes=SCOPES)
-    credentials = flow.run_console()
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES)
+        credentials = token
     # Build the service object
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
@@ -70,8 +71,25 @@ def main():
     )
     response = request.execute()
 
-    print(response)
+    return response
 
+def get_access_token(code, state):
+    state = flask.session['state']
+    flow = google_auth_oauthlib.flow.Flow.from_client_config(
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES,
+        state=state)
+    flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+
+    authorization_response = flask.request.url
+    flow.fetch_token(authorization_response=authorization_response)
+
+    # Store the credentials in the session.
+    # ACTION ITEM for developers:
+    #     Store user's access and refresh tokens in your data store if
+    #     incorporating this code into your real app.
+    credentials = flow.credentials
+    return credentials
 
 
 # if __name__ == "__main__":
