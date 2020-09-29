@@ -30,7 +30,9 @@ CLIENT_CONFIG = {'web': {
 SCOPES = ["openid",
      "https://www.googleapis.com/auth/youtube.readonly",
      "https://www.googleapis.com/auth/userinfo.email",
-     "https://www.googleapis.com/auth/userinfo.profile"]
+     "https://www.googleapis.com/auth/userinfo.profile",
+     "https://www.googleapis.com/auth/youtube",
+     "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
 
 def get_authorization_url():
     # Use the information in the client_secret.json to identify
