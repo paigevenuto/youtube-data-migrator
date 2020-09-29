@@ -79,6 +79,7 @@ def get_access_token(code, state):
         client_config=CLIENT_CONFIG,
         scopes=SCOPES,
         state=state)
+    flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth'
 
     flow.fetch_token(code=code)
 
