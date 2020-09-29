@@ -149,6 +149,6 @@ def auth():
     state = request.args['state']
     access_token = ytmapi.get_access_token(auth_code, state)
 
-    return str(access_token)
+    return str(jsonify(access_token))
 
 serve(app, port=PORT)
