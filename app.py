@@ -146,7 +146,8 @@ def auth():
       return response
 
     # Turn auth code into an access token
-    access_token = ytmapi.get_access_token(auth_code, request.args['state'])
+    state = request.args['state']
+    access_token = ytmapi.get_access_token(auth_code, state)
 
     return 'access token=' + access_token
 

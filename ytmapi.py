@@ -79,17 +79,10 @@ def get_access_token(code, state):
         client_config=CLIENT_CONFIG,
         scopes=SCOPES,
         state=state)
-    flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
 
-    authorization_response = flask.request.url
-    flow.fetch_token(authorization_response=authorization_response)
+    flow.fetch_token(code=code)
 
-    # Store the credentials in the session.
-    # ACTION ITEM for developers:
-    #     Store user's access and refresh tokens in your data store if
-    #     incorporating this code into your real app.
-    credentials = flow.credentials
-    return credentials
+    return flow.credentials
 
 
 # if __name__ == "__main__":
