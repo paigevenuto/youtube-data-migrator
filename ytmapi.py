@@ -27,7 +27,10 @@ CLIENT_CONFIG = {'web': {
     'javascript_origins': GOOGLE_JAVASCRIPT_ORIGINS}}
 
 # This scope will allow the application to manage your calendars
-SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
+SCOPES = ["openid",
+     "https://www.googleapis.com/auth/youtube.readonly",
+     "https://www.googleapis.com/auth/userinfo.email",
+     "https://www.googleapis.com/auth/userinfo.profile"]
 
 def get_authorization_url():
     # Use the information in the client_secret.json to identify
