@@ -201,7 +201,7 @@ def get_access_token(code, state):
 
     flow.fetch_token(code=code)
 
-    return flow.credentials
+    return flow
 
 def save_credentials(response, user):
     try:
