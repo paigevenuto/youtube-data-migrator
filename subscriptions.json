@@ -1,0 +1,166 @@
+{
+  "kind": "youtube#SubscriptionListResponse",
+  "etag": "ybKEXgWqvCJ9Mu0NAGO_J1-jmG4",
+  "nextPageToken": "CAUQAA",
+  "pageInfo": {
+    "totalResults": 63,
+    "resultsPerPage": 5
+  },
+  "items": [
+    {
+      "kind": "youtube#subscription",
+      "etag": "XCg7Cqymp3mrk4QcgLOunekG1Ws",
+      "id": "olLGU7-1L01hqGPmTf6N6bYGaK6x2axN2CPvQBMBE50",
+      "snippet": {
+        "publishedAt": "2020-08-07T01:57:42.292000Z",
+        "title": "Vaush",
+        "description": "Hey, comrades! This channel exists so I can channel my creative energy, artistic talent, and rhetorical skill into something productive and useful to others. For now, that seems to be yelling at reactionaries and fascists. Who knows what the future might hold?\n\nTwitter - https://twitter.com/VaushV\nPatreon - https://www.patreon.com/vaush\nDonate - https://www.paypal.me/vaush",
+        "resourceId": {
+          "kind": "youtube#channel",
+          "channelId": "UC1E-JS8L0j1Ei70D9VEFrPQ"
+        },
+        "channelId": "UCRNPRe5R1Q3tFL1FRJTJC3g",
+        "thumbnails": {
+          "default": {
+            "url": "https://yt3.ggpht.com/a/AATXAJy-Jbi3TTu4dZKuhpUoF2XaHZ7qoJ7UawLuj-tb=s88-c-k-c0xffffffff-no-rj-mo"
+          },
+          "medium": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s240-c-k-c0xffffffff-no-rj-mo"
+          },
+          "high": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s800-c-k-c0xffffffff-no-rj-mo"
+          }
+        }
+      },
+      "contentDetails": {
+        "totalItemCount": 575,
+        "newItemCount": 1,
+        "activityType": "all"
+      }
+    },
+    {
+      "kind": "youtube#subscription",
+      "etag": "ehlZofrDfQU58ICUU2h-P85RREY",
+      "id": "olLGU7-1L01hhHaupO8PsfJNv2yvcymYo6VCtyyU4hw",
+      "snippet": {
+        "publishedAt": "2019-08-09T18:06:41.491000Z",
+        "title": "hbomberguy",
+        "description": "I make videos\n\nSend all enquiries to contact@hbomb.zone",
+        "resourceId": {
+          "kind": "youtube#channel",
+          "channelId": "UClt01z1wHHT7c5lKcU8pxRQ"
+        },
+        "channelId": "UCRNPRe5R1Q3tFL1FRJTJC3g",
+        "thumbnails": {
+          "default": {
+            "url": "https://yt3.ggpht.com/a/AATXAJxCSmTT_43mElIOvb9gjrTlnRUZPd3ghxazI2juRw=s88-c-k-c0xffffffff-no-rj-mo"
+          },
+          "medium": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s240-c-k-c0xffffffff-no-rj-mo"
+          },
+          "high": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s800-c-k-c0xffffffff-no-rj-mo"
+          }
+        }
+      },
+      "contentDetails": {
+        "totalItemCount": 67,
+        "newItemCount": 0,
+        "activityType": "all"
+      }
+    },
+    {
+      "kind": "youtube#subscription",
+      "etag": "ES3VFH96LN1iNPndLFk2SmT1T7Y",
+      "id": "olLGU7-1L024KPa9tRSSEAal6rCe2z3wzVY0xg77NNo",
+      "snippet": {
+        "publishedAt": "2020-09-20T16:17:33.440000Z",
+        "title": "Cuck Philosophy",
+        "description": "",
+        "resourceId": {
+          "kind": "youtube#channel",
+          "channelId": "UCSkzHxIcfoEr69MWBdo0ppg"
+        },
+        "channelId": "UCRNPRe5R1Q3tFL1FRJTJC3g",
+        "thumbnails": {
+          "default": {
+            "url": "https://yt3.ggpht.com/a/AATXAJwtum0LYSjm5thYJNLrUv6UmtQKNDVzarSFyw2KlQ=s88-c-k-c0xffffffff-no-rj-mo"
+          },
+          "medium": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s240-c-k-c0xffffffff-no-rj-mo"
+          },
+          "high": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s800-c-k-c0xffffffff-no-rj-mo"
+          }
+        }
+      },
+      "contentDetails": {
+        "totalItemCount": 36,
+        "newItemCount": 0,
+        "activityType": "all"
+      }
+    },
+    {
+      "kind": "youtube#subscription",
+      "etag": "1zk9Qluml6s5bpoWoIBQ6zyQ10Q",
+      "id": "olLGU7-1L01hhHaupO8PsWY4Hk_t0fcFnkt1soCtIBw",
+      "snippet": {
+        "publishedAt": "2020-01-07T19:51:38.031000Z",
+        "title": "Luke Smith",
+        "description": "Everything you're looking for is here: http://lukesmth.xyz",
+        "resourceId": {
+          "kind": "youtube#channel",
+          "channelId": "UC2eYFnH61tmytImy1mTYvhA"
+        },
+        "channelId": "UCRNPRe5R1Q3tFL1FRJTJC3g",
+        "thumbnails": {
+          "default": {
+            "url": "https://yt3.ggpht.com/a/AATXAJysIv4Yc0twEcwfSIjQCZMnYPvGn9dRLjRq5T7r5g=s88-c-k-c0xffffffff-no-rj-mo"
+          },
+          "medium": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s240-c-k-c0xffffffff-no-rj-mo"
+          },
+          "high": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s800-c-k-c0xffffffff-no-rj-mo"
+          }
+        }
+      },
+      "contentDetails": {
+        "totalItemCount": 340,
+        "newItemCount": 0,
+        "activityType": "all"
+      }
+    },
+    {
+      "kind": "youtube#subscription",
+      "etag": "wOdngHd_0adeIB_EWX5Q93HiYj4",
+      "id": "olLGU7-1L01hhHaupO8PsV2y0NUCPnYVU2Snfj3Pa6g",
+      "snippet": {
+        "publishedAt": "2020-04-27T13:22:45.231000Z",
+        "title": "AvE",
+        "description": "Err\nand err\nand err again\nbut less\nand less\nand less.\n\n-Piet Hein\n\nThis channel has awesome Patrons. We have no need, nor any inclination to do corpo shill vids. If you are thinking you'd like me to review your fantastic new banana peeler, I invite you to please fuck off.",
+        "resourceId": {
+          "kind": "youtube#channel",
+          "channelId": "UChWv6Pn_zP0rI6lgGt3MyfA"
+        },
+        "channelId": "UCRNPRe5R1Q3tFL1FRJTJC3g",
+        "thumbnails": {
+          "default": {
+            "url": "https://yt3.ggpht.com/a/AATXAJxhc_OBt7CSsm_t9FrJswUh8Bgr0oj4x2_gRvmy=s88-c-k-c0xffffffff-no-rj-mo"
+          },
+          "medium": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s240-c-k-c0xffffffff-no-rj-mo"
+          },
+          "high": {
+            "url": "https://yt3.ggpht.com/youtube/img/email/avatar_720.png/s800-c-k-c0xffffffff-no-rj-mo"
+          }
+        }
+      },
+      "contentDetails": {
+        "totalItemCount": 547,
+        "newItemCount": 1,
+        "activityType": "all"
+      }
+    }
+  ]
+}

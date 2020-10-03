@@ -17,7 +17,10 @@ class User(db.Model):
     id = db.Column( db.Integer, primary_key=True, autoincrement=True)
     username = db.Column( db.Text, nullable=False)
     password_hash = db.Column( db.Text, nullable=False)
-
+    subscriptions = db.relationship('Subscription', backref='users', cascade='all, delete-orphan')
+    liked_videos = db.relationship('LikedVideo', backref='users', cascade='all, delete-orphan')
+    playlists = db.relationship('Playlist', backref='users', cascade='all, delete-orphan')
+    credentials = db.relationship('Credential', backref='users', cascade='all, delete-orphan')
 
 class Subscription(db.Model):
     """Subscription."""
@@ -27,6 +30,8 @@ class Subscription(db.Model):
     id = db.Column( db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
     channel_id = db.Column( db.Text, nullable=False)
+    title = db.Column( db.Text, nullable=False)
+    thumbnail = db.Column( db.Text, nullable=False)
 
 class LikedVideo(db.Model):
     """liked Video."""
@@ -38,43 +43,20 @@ class LikedVideo(db.Model):
     video_id = db.Column( db.Text, nullable=False)
     title = db.Column( db.Text, nullable=False)
     channel_title = db.Column( db.Text, nullable=False)
-    thumbnail_url = db.Column( db.Text, nullable=False)
+    thumbnail = db.Column( db.Text, nullable=False)
 
-class Watchlater(db.Model):
-    """Watch Later."""
+class Playlist(db.Model):
+    """Playlist."""
 
-    __tablename__ = "watch_later"
-
-    id = db.Column( db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
-    video_id = db.Column( db.Text, nullable=False)
-    title = db.Column( db.Text, nullable=False)
-    channel_title = db.Column( db.Text, nullable=False)
-    thumbnail_url = db.Column( db.Text, nullable=False)
-
-class AddedPlaylist(db.Model):
-    """Added Playlist."""
-
-    __tablename__ = "added_playlists"
+    __tablename__ = "playlists"
 
     id = db.Column( db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
-    thumbnail_url = db.Column( db.Text, nullable=False)
+    resource_id = db.Column( db.Text, nullable=False)
     title = db.Column( db.Text, nullable=False)
-    channel_title = db.Column( db.Text, nullable=False)
-    playlist_id = db.Column( db.Text, nullable=False)
-
-class UserPlaylist(db.Model):
-    """User Playlist."""
-
-    __tablename__ = "user_playlists"
-
-    id = db.Column( db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
-    thumbnail_url = db.Column( db.Text, nullable=False)
-    title = db.Column( db.Text, nullable=False)
+    thumbnail = db.Column( db.Text, nullable=False)
     privacy_status = db.Column( db.Text, nullable=False)
-    playlist_id = db.Column( db.Text, nullable=False)
+    playlist_videos = db.relationship('PlaylistVideo', backref='playlists', cascade='all, delete-orphan')
 
 class PlaylistVideo(db.Model):
     """Playlist Video."""
@@ -82,9 +64,48 @@ class PlaylistVideo(db.Model):
     __tablename__ = "playlist_videos"
 
     id = db.Column( db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
-    user_playlist_id = db.Column( db.Integer, db.ForeignKey('user_playlists.id'))
+    playlist_id = db.Column( db.Integer, db.ForeignKey('playlists.id'))
     video_id = db.Column( db.Text, nullable=False)
-    title = db.Column( db.Text, nullable=False)
-    channel_title = db.Column( db.Text, nullable=False)
-    thumbnail_url = db.Column( db.Text, nullable=False)
+    # title = db.Column( db.Text, nullable=False)
+    # channel_title = db.Column( db.Text, nullable=False)
+    # thumbnail = db.Column( db.Text, nullable=False)
+
+class Credential(db.Model):
+    """Credential."""
+
+    __tablename__ = "credentials"
+
+    id = db.Column( db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
+    token = db.Column( db.Text, nullable=False)
+    refresh_token = db.Column( db.Text, nullable=False)
+
+# class Watchlater(db.Model):
+    # """Watch Later.
+    # Unfortunately this data is not supported by the YouTube Data v3 API
+    # I am just leaving this code here under the circumstance that it could ever be useful."""
+    #
+
+    # __tablename__ = "watch_later"
+
+    # id = db.Column( db.Integer, primary_key=True, autoincrement=True)
+    # user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
+    # video_id = db.Column( db.Text, nullable=False)
+    # title = db.Column( db.Text, nullable=False)
+    # channel_title = db.Column( db.Text, nullable=False)
+    # thumbnail = db.Column( db.Text, nullable=False)
+
+# class AddedPlaylist(db.Model):
+    # """Added Playlist.
+    # Unfortunately this data is not supported by the YouTube Data v3 API
+    # I am just leaving this code here under the circumstance that it could ever be useful."""
+    #
+
+    # __tablename__ = "added_playlists"
+
+    # id = db.Column( db.Integer, primary_key=True, autoincrement=True)
+    # user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
+    # thumbnail = db.Column( db.Text, nullable=False)
+    # title = db.Column( db.Text, nullable=False)
+    # channel_title = db.Column( db.Text, nullable=False)
+    # playlist_id = db.Column( db.Text, nullable=False)

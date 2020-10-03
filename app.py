@@ -1,13 +1,14 @@
 from waitress import serve
 from flask import Flask, render_template, request, redirect, session, flash, jsonify
 from forms import AddLoginForm, AddSignUpForm
-from models import db, connect_db, User, Subscription, LikedVideo, Watchlater, AddedPlaylist, UserPlaylist, PlaylistVideo
+from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
 from flask_bcrypt import Bcrypt
 import datetime
 import jwt
 from functools import wraps
 import os
 import ytmapi
+import json
 
 app = Flask(__name__)
 
@@ -28,14 +29,35 @@ bcrypt = Bcrypt()
 connect_db(app)
 db.create_all()
 
+def get_session_user():
+    authtoken = session['auth']
+    authtoken = jwt.decode(authtoken, JWT_KEY)
+    username = authtoken['user']
+    return username
+
+def get_user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    return user
+
+def create_login_token(username):
+    token = {
+            'user' : username,
+            'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
+            }
+    jwttoken = jwt.encode(token, JWT_KEY)
+    session['auth'] = jwttoken
+    return
+
 def login_required(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         try:
-            authtoken = session['auth']
-            authtoken = jwt.decode(authtoken, JWT_KEY)
-            if authtoken['user']:
+            username = get_session_user()
+            user = get_user(username)
+            if user.username == username:
                 return function()
+            else:
+                return redirect('/login')
         except:
             return redirect('/login')
         return redirect('/login')
@@ -43,13 +65,6 @@ def login_required(function):
 
 @app.route('/')
 def mainpage():
-    try:
-        authtoken = session['auth']
-        authtoken = jwt.decode(authtoken, JWT_KEY)
-        if authtoken['user']:
-            return redirect('/dashboard')
-    except:
-        return render_template('welcome.html')
     return render_template('welcome.html')
 
 @app.route('/learnmore')
@@ -58,23 +73,58 @@ def learnmore():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+
+    # Dictionary for potential login errors
+    errors = {
+        'username' : {
+            'error' : '',
+            'labelclass' : '',
+            'icon' : ''
+            },
+        'password' : {
+            'error' : '',
+            'labelclass' : '',
+            'icon' : ''
+            }
+        }
     form = AddLoginForm()
+
+    # CSRF check
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = User.query.filter_by(username=username).first_or_404()
-        if bcrypt.check_password_hash(user.password_hash, password):
-            token = {
-                    'user' : username,
-                    'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
-                    }
-            jwttoken = jwt.encode(token, JWT_KEY)
-            session['auth'] = jwttoken
-            return redirect("/dashboard")
-    return render_template('login.html', form=form)
+
+        # User in database check
+        try:
+            username = get_session_user()
+            user = get_user(username)
+
+            # Password correct check
+            if bcrypt.check_password_hash(user.password_hash, password):
+                # Provide user login token
+                create_login_token(username)
+                return redirect("/dashboard")
+            else:
+                errors['password']['error'] = 'Password is incorrect!'
+                errors['password']['labelclass'] = 'mdc-text-field--invalid'
+                errors['password']['icon'] = 'error'
+        except:
+            errors['username']['error'] = 'User does not exist!'
+            errors['username']['labelclass'] = 'mdc-text-field--invalid'
+            errors['username']['icon'] = 'error'
+    return render_template('login.html', form=form, errors=errors)
     
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
+    # Dictionary for potential login errors
+    errors = {
+        'username' : {
+            'error' : '',
+            'labelclass' : '',
+            'icon' : ''
+            },
+        }
+
     form = AddSignUpForm()
     if form.validate_on_submit():
 
@@ -85,11 +135,16 @@ def signup():
         
         # Check if user already exists
         try:
-            userExists = User.query.filter_by(username=username).first_or_404()
+            userExists = get_user(username)
             if bool(userExists):
                 userExists = True
         except:
             userExists = False
+        
+        if userExists:
+            errors['username']['error'] = 'User already exists!'
+            errors['username']['labelclass'] = 'mdc-text-field--invalid'
+            errors['username']['icon'] = 'error'
 
         if not userExists and privacyAgree:
             # Hash password
@@ -105,17 +160,12 @@ def signup():
             db.session.commit()
 
             # Generate login token
-            token = {
-                    'user' : username,
-                    'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
-                    }
-            jwttoken = jwt.encode(token, JWT_KEY)
-            session['auth'] = jwttoken
+            create_login_token(username)
             return redirect("/dashboard")
-        else:
-            return 'username taken'
+
+        return render_template('signup.html', form=form, errors=errors)
     else:
-        return render_template('signup.html', form=form)
+        return render_template('signup.html', form=form, errors=errors)
 
 @app.route('/dashboard')
 @login_required
@@ -147,8 +197,29 @@ def auth():
 
     # Turn auth code into an access token
     state = request.args['state']
-    access_token = ytmapi.get_access_token(auth_code, state)
+    credentials = ytmapi.get_access_token(auth_code, state)
+    save_credentials(credentials)
+    return 'hopefully this just saved the creds to the db'
 
-    return access_token.token
+@app.route('/list')
+def list():
+    username = get_session_user()
+    user = get_user(username) 
+    
+    likeslist = LikedVideo.query.filter_by(user_id=user.id).all()
+    subslist = Subscription.query.filter_by(user_id=user.id).all()
+    playlistlist = Playlist.query.filter_by(user_id=user.id).all()
+    
+    return render_template('list.html', subs=subslist, likes=likeslist, playlists=playlistlist)
 
-serve(app, port=PORT)
+@app.route('/likes')
+@login_required
+def test():
+    username = get_session_user()
+    user = get_user(username)
+    token = Credential.query.filter_by(user_id=user.id)
+    likes = ytmapi.get_liked_videos(token.token)
+    ytmapi.save_liked_videos(likes)
+    return 'hopefully this just saved likes to the db'
+
+# serve(app, port=PORT)

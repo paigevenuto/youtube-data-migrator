@@ -4,6 +4,10 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 import flask
+from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
+
+api_service_name = "youtube"
+api_version = "v3"
 
 # Get secrets from environment
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
@@ -56,11 +60,7 @@ def get_authorization_url():
 
     return authorization_url, state
 
-def list_subscriptions(token):
-    
-    api_service_name = "youtube"
-    api_version = "v3"
-
+def get_subscriptions(token):
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
@@ -78,6 +78,118 @@ def list_subscriptions(token):
 
     return response
 
+def get_playlists(token):
+    # Get credentials and create an API client
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES)
+    credentials = token
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+
+    request = youtube.playlists().list(
+        part="snippet,contentDetails",
+        maxResults=25,
+        mine=True
+        )
+    response = request.execute()
+    return response
+
+def get_playlist_items(token, playlist_id):
+    # Get credentials and create an API client
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES)
+    credentials = token
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+
+    request = youtube.playlistItems().list(
+        part="snippet",
+        playlistId=playlist_id
+    )
+    response = request.execute()
+    return
+
+def get_liked_videos(token):
+    # Get credentials and create an API client
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES)
+    credentials = token
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+
+    request = youtube.videos().list(
+        part="snippet,contentDetails,statistics",
+        myRating="like"
+    )
+    response = request.execute()
+    return response
+
+def get_subscription_thumbnails(token, subscriptions):
+    channels = ''
+    for item in subscriptions['items']:
+        channel_id = item['snippet']['resourceId']['channelId']
+        channels += channel_id
+        channels += ', '
+    request = youtube.channels().list(
+        part="snippet",
+        id=channels,
+        fields="items/snippet/thumbnails/default/url"
+    )
+    response = request.execute()
+    # get response filtered only for ID and thumbnail
+    # iterate over that
+    # set the thumbnail url in the database for the corresponding channel ID
+    return response
+
+def save_subscriptions(subscriptions, user):
+    for sub in subscriptions['items']:
+        newSub = Subscription(
+                user_id = user.id,
+                channel_id = sub['snippet']['resourceId']['channelId'],
+                title = sub['snippet']['title'],
+                thumbnail = sub['snippet']['thumbnails']['default']['url']
+                )
+        db.session.add(newSub)
+        db.session.commit()
+    return
+
+def save_liked_videos(liked_videos, user):
+    for video in liked_videos['items']:
+        newVid = LikedVideo(
+                user_id = user.id,
+                video_id = video['id'],
+                title = video['snippet']['title'],
+                channel_title = video['snippet']['channelTitle'],
+                thumbnail = video['snippet']['thumbnails']['default']['url']
+                )
+        db.session.add(newVid)
+        db.session.commit()
+    return
+
+def save_playlists(playlists, user):
+    for playlist in playlists['items']:
+        newPlaylist = Playlist(
+                user_id = user.id,
+                resource_id = playlist['id'],
+                title = playlist['snippet']['title'],
+                thumbnail = playlist['snippet']['thumbnails']['default']['url'],
+                privacy_status = playlist['status']['privacyStatus']
+                )
+        db.session.add(newPlaylist)
+        db.session.commit()
+    return
+
+def save_playlist_items(playlist_items, playlistId):
+    for video in playlist_items['items']:
+        newVid = PlaylistVideo(
+                playlist_id = playlistId,
+                video_id = video['snippet']['resourceId']['videoId']
+                )
+    return
+
 def get_access_token(code, state):
     state = flask.session['state']
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
@@ -89,6 +201,23 @@ def get_access_token(code, state):
     flow.fetch_token(code=code)
 
     return flow.credentials
+
+def save_credentials(response):
+    username = get_session_user()
+    user = get_user(username) 
+    try:
+        creds = Credential.query.filter_by(user_id=user.id).first_or_404()
+        creds.token = response['token']
+        creds.refresh_token = response['refresh_token']
+    except:
+        newCreds = Credential(
+                user_id = user.id,
+                token = response['token'],
+                refresh_token = response['refresh_token']
+                )
+        db.session.add(newCreds)
+    db.session.commit()
+    return
 
 
 # if __name__ == "__main__":
