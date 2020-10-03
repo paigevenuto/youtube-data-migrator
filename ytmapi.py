@@ -193,7 +193,6 @@ def save_playlist_items(playlist_items, playlistId):
     return
 
 def get_access_token(code, state):
-    state = flask.session['state']
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         client_config=CLIENT_CONFIG,
         scopes=SCOPES,
