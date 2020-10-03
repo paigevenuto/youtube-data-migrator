@@ -197,8 +197,10 @@ def auth():
 
     # Turn auth code into an access token
     state = request.args['state']
+    username = get_session_user()
+    user = get_user(username)
     credentials = ytmapi.get_access_token(auth_code, state)
-    ytmapi.save_credentials(credentials)
+    ytmapi.save_credentials(credentials, user)
     return 'hopefully this just saved the creds to the db'
 
 @app.route('/list')

@@ -188,6 +188,8 @@ def save_playlist_items(playlist_items, playlistId):
                 playlist_id = playlistId,
                 video_id = video['snippet']['resourceId']['videoId']
                 )
+        db.session.add(newVid)
+        db.session.commit()
     return
 
 def get_access_token(code, state):
@@ -202,9 +204,7 @@ def get_access_token(code, state):
 
     return flow.credentials
 
-def save_credentials(response):
-    username = get_session_user()
-    user = get_user(username) 
+def save_credentials(response, user):
     try:
         creds = Credential.query.filter_by(user_id=user.id).first_or_404()
         creds.token = response['token']
