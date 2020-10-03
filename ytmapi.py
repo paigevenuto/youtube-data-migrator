@@ -212,8 +212,8 @@ def save_credentials(response, user):
     except:
         newCreds = Credential(
                 user_id = user.id,
-                token = response['token'],
-                refresh_token = response['refresh_token']
+                token = response.token,
+                refresh_token = response.refresh_token
                 )
         db.session.add(newCreds)
     db.session.commit()
