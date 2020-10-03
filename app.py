@@ -222,4 +222,4 @@ def test():
     ytmapi.save_liked_videos(likes)
     return 'hopefully this just saved likes to the db'
 
-# serve(app, port=PORT)
+serve(app, port=PORT)
