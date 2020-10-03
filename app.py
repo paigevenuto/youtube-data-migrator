@@ -218,9 +218,9 @@ def list():
 def test():
     username = get_session_user()
     user = get_user(username)
-    token = Credential.query.filter_by(user_id=user.id)
+    token = Credential.query.filter_by(user_id=user.id).first_or_404()
     likes = ytmapi.get_liked_videos(token.token)
-    ytmapi.save_liked_videos(likes)
+    ytmapi.save_liked_videos(likes, user)
     return 'hopefully this just saved likes to the db'
 
 serve(app, port=PORT)
