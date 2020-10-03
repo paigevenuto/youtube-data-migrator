@@ -215,7 +215,6 @@ def list():
     return render_template('list.html', subs=subslist, likes=likeslist, playlists=playlistlist)
 
 @app.route('/likes')
-@login_required
 def test():
     username = get_session_user()
     user = get_user(username)
