@@ -200,9 +200,8 @@ def auth():
     username = get_session_user()
     user = get_user(username)
     credentials = ytmapi.get_access_token(auth_code, state)
-    # ytmapi.save_credentials(credentials, user)
-    # return 'hopefully this just saved the creds to the db'
-    return str(credentials.refresh_token)
+    ytmapi.save_credentials(credentials, user)
+    return 'hopefully this just saved the creds to the db'
 
 @app.route('/list')
 def list():
