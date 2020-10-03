@@ -206,8 +206,7 @@ def auth():
         {
             'refresh_token' : credentials.refresh_token,
             '_refresh_token' : credentials._refresh_token,
-            'refresh' : credentials.refresh,
-            'dir' : dir(credentials)
+            'refresh' : credentials.refresh
         }
         ))
 
