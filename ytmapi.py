@@ -201,7 +201,7 @@ def get_access_token(code, state):
 
     flow.fetch_token(code=code)
 
-    return flow
+    return flow.oauth2session
 
 def save_credentials(response, user):
     try:
