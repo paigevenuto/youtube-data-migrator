@@ -38,6 +38,19 @@ SCOPES = ["openid",
      "https://www.googleapis.com/auth/youtube",
      "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
 
+def get_credentials(user_id):
+    token = Credential.query.filter_by(user_id=user.id).first_or_404()
+    credentials = google.oauth2.credentials.Credentials(
+            token = token.token,
+            refresh_token = token.refresh_token,
+            token_uri = CLIENT_CONFIG['web']['token_uri'],
+            client_id = GOOGLE_CLIENT_ID,
+            client_secret = GOOGLE_CLIENT_SECRET,
+            scopes = SCOPES
+            )
+    return credentials
+
+
 def get_authorization_url():
     # Use the information in the client_secret.json to identify
     # the application requesting authorization.
@@ -111,20 +124,19 @@ def get_playlist_items(token, playlist_id):
     response = request.execute()
     return
 
-def get_liked_videos(token):
-    # Get credentials and create an API client
+def get_liked_videos(credentials, user):
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
         scopes=SCOPES)
-    credentials = token
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
 
     request = youtube.videos().list(
-        part="snippet,contentDetails,statistics",
+        part="snippet",
         myRating="like"
     )
     response = request.execute()
+    save_credentials(credentials, user)
     return response
 
 def get_subscription_thumbnails(token, subscriptions):
