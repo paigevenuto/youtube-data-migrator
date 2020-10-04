@@ -220,7 +220,7 @@ def test():
     username = get_session_user()
     user = get_user(username)
     credentials = ytmapi.get_credentials(user.id)
-    likes = ytmapi.get_liked_videos(token.token)
+    likes = ytmapi.get_liked_videos(credentials)
     ytmapi.save_liked_videos(likes, user)
     return 'hopefully this just saved likes to the db'
 
