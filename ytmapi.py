@@ -39,7 +39,7 @@ SCOPES = ["openid",
      "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
 
 def get_credentials(user_id):
-    token = Credential.query.filter_by(user_id=user.id).first_or_404()
+    token = Credential.query.filter_by(user_id=user_id).first_or_404()
     credentials = google.oauth2.credentials.Credentials(
             token = token.token,
             refresh_token = token.refresh_token,
