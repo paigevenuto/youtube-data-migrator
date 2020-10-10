@@ -246,7 +246,12 @@ def deleteSelection():
         items = request.form.to_dict()
         items.pop("csrf_token")
         for item in items.keys():
-            LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).delete()
+            if item[-7:] == 'videoid':
+                LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).delete()
+            elif item[-7:] == 'channel':
+                Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).delete()
+            elif item['7:'] == 'playlis':
+                Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).delete()
         db.session.commit()
     return redirect("/dashboard")
 
@@ -283,6 +288,7 @@ def downloadJson():
                 "playlists":[]
                 }
         for item in items.keys():
+
             video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).first_or_404()
             videoItem = {
                     'channel_title' : video.channel_title,
