@@ -1,4 +1,5 @@
 import os
+import oauth2client
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -74,11 +75,11 @@ def get_authorization_url():
     return authorization_url, state
 
 def get_playlists(user, page):
+    credentials = get_credentials(user.id)
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
         scopes=SCOPES)
-    credentials = token
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
 
@@ -90,12 +91,12 @@ def get_playlists(user, page):
     response = request.execute()
     return response
 
-def get_playlist_items(user, playlist_id):
+def get_playlist_items(user, page, playlist_id):
+    credentials = get_credentials(user.id)
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
         scopes=SCOPES)
-    credentials = token
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
 
@@ -107,7 +108,9 @@ def get_playlist_items(user, playlist_id):
     response = request.execute()
     return
 
-def get_liked_videos(credentials, user):
+def get_liked_videos(user, page):
+    credentials = get_credentials(user.id)
+    # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
         scopes=SCOPES)
