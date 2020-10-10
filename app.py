@@ -267,11 +267,11 @@ def importData():
     if importForm.validate_on_submit():
         username = get_session_user()
         user = get_user(username)
-        if importForm.subscriptions:
+        if importForm.subscriptions.data:
             ytmapi.import_subscriptions(user)
-        if importForm.likedVideos:
+        if importForm.likedVideos.data:
             ytmapi.import_liked_videos(user)
-        if importForm.playlists:
+        if importForm.playlists.data:
             ytmapi.import_playlists(user)
     return redirect('/dashboard')
 
