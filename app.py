@@ -1,6 +1,6 @@
 from waitress import serve
-from flask import Flask, render_template, request, redirect, session, flash, jsonify
-from forms import AddLoginForm, AddSignUpForm
+from flask import Flask, render_template, request, redirect, session, flash, send_file
+from forms import AddLoginForm, AddSignUpForm, AddDelAccForm, AddSelectionForm, AddImportForm
 from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
 from flask_bcrypt import Bcrypt
 import datetime
@@ -10,6 +10,7 @@ import os
 import ytmapi
 import json
 import oauth2client
+import tempfile
 
 app = Flask(__name__)
 
@@ -72,6 +73,10 @@ def mainpage():
 def learnmore():
     return render_template('learnmore.html')
 
+@app.route('/privacy')
+def privacyPolicy():
+    return render_template('privacy_policy.html')
+
 @app.route('/login', methods=["GET", "POST"])
 def login():
 
@@ -97,7 +102,6 @@ def login():
 
         # User in database check
         try:
-            username = get_session_user()
             user = get_user(username)
 
             # Password correct check
@@ -168,19 +172,20 @@ def signup():
     else:
         return render_template('signup.html', form=form, errors=errors)
 
-@app.route('/dashboard')
+
+@app.route('/auth/google/signin')
 @login_required
-def dashboard():
+def authenticate():
     # Generate authorization_url and state token
     authorization_url = ytmapi.get_authorization_url()
 
     # Save current state to user's session
     session['state'] = authorization_url[1]
     url = authorization_url[0]
+    return redirect(url)
 
-    return render_template('dashboard.html', authorization_url=url)
-
-@app.route('/auth')
+@app.route('/auth/google/callback')
+@login_required
 def auth():
     # Ensure that the request is not a forgery and that the user sending
     # this connect request is the expected user.
@@ -202,10 +207,11 @@ def auth():
     user = get_user(username)
     credentials = ytmapi.get_access_token(auth_code, state)
     ytmapi.save_credentials(credentials, user)
-    return 'hopefully this just saved the creds to the db'
+    return 'this window should close automatically'
 
-@app.route('/list')
-def list():
+@app.route('/dashboard')
+@login_required
+def dashboard():
     username = get_session_user()
     user = get_user(username) 
     
@@ -213,15 +219,117 @@ def list():
     subslist = Subscription.query.filter_by(user_id=user.id).all()
     playlistlist = Playlist.query.filter_by(user_id=user.id).all()
     
-    return render_template('list.html', subs=subslist, likes=likeslist, playlists=playlistlist)
+    delAccForm = AddDelAccForm()
+    selectionForm = AddSelectionForm()
+    importForm = AddImportForm()
 
-@app.route('/likes')
-def test():
+    return render_template('dashboard.html', subs=subslist, likes=likeslist, playlists=playlistlist, delAccForm=delAccForm, selectionForm=selectionForm, importForm=importForm)
+
+@app.route('/delacc', methods=["POST"])
+@login_required
+def delAcc():
+    delAccForm = AddDelAccForm()
+    if delAccForm.validate_on_submit():
+        username = get_session_user()
+        user = get_user(username)
+        db.session.delete(user)
+        db.session.commit()
+    return redirect("/")
+
+@app.route('/delete', methods=["POST"])
+@login_required
+def deleteSelection():
+    selectionform = AddSelectionForm()
+    if selectionform.validate_on_submit():
+        username = get_session_user()
+        user = get_user(username)
+        items = request.form.to_dict()
+        items.pop("csrf_token")
+        for item in items.keys():
+            video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).delete()
+        db.session.commit()
+    return redirect("/dashboard")
+
+@app.route('/logout')
+@login_required
+def logout():
+    session.clear()
+    return redirect('/')
+
+@app.route('/import', methods=["POST"])
+@login_required
+def importData():
+    importForm = AddImportForm()
+    if importForm.validate_on_submit():
+        print(importForm.subscriptions)
+        # parse the form's children
+        # get the data with the ytmapi functions
+        # save the data with the ytmapi functions
+    return redirect('/dashboard')
+
+@app.route("/download-json", methods=["POST"])
+@login_required
+def downloadJson():
+    selectionform = AddSelectionForm()
+    if selectionform.validate_on_submit():
+        username = get_session_user()
+        user = get_user(username)
+        items = request.form.to_dict()
+        items.pop("csrf_token")
+        fd, filepath = tempfile.mkstemp()
+        data = {
+                "liked_videos":[],
+                "subscriptions":[],
+                "playlists":[]
+                }
+        for item in items.keys():
+            video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).first_or_404()
+            videoItem = {
+                    'channel_title' : video.channel_title,
+                    'video_title' : video.title,
+                    'video_id' : video.video_id
+                    }
+            data['liked_videos'].append(videoItem)
+        with os.fdopen(fd, "w") as f:
+            json.dump(data, f)
+    return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")
+
+@app.route('/likestest')
+@login_required
+def likestest():
     username = get_session_user()
     user = get_user(username)
-    credentials = ytmapi.get_credentials(user.id)
-    likes = ytmapi.get_liked_videos(credentials, user)
+    likes = open('likes.json')
+    likes = json.loads(likes.read())
     ytmapi.save_liked_videos(likes, user)
     return 'hopefully this just saved likes to the db'
+
+@app.route('/livelikestest')
+@login_required
+def livelikestest():
+    username = get_session_user()
+    user = get_user(username)
+    likes = ytmapi.get_liked_videos(user, None)
+    ytmapi.save_liked_videos(likes, user)
+    return 'hopefully this just saved likes to the db'
+
+@app.route('/substest')
+@login_required
+def substest():
+    username = get_session_user()
+    user = get_user(username)
+    subs = open('subscriptions.json')
+    subs = json.loads(subs.read())
+    ytmapi.save_subscriptions(subs, user)
+    return 'hopefully this just saved subs to the db'
+
+@app.route('/livesubstest')
+@login_required
+def livesubstest():
+    username = get_session_user()
+    user = get_user(username)
+    subs = ytmapi.get_subscriptions(user, None)
+    ytmapi.save_subscriptions(subs, user)
+    return 'hopefully this just saved subs to the db'
 
 serve(app, port=PORT)

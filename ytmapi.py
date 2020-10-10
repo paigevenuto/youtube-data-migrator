@@ -60,7 +60,7 @@ def get_authorization_url():
 
     # Indicate where the API server will redirect the user after the user completes
     # the authorization flow. The redirect URI is required.
-    flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth'
+    flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth/google/callback'
     
     # Generate URL for request to Google's OAuth 2.0 server.
     # Use kwargs to set optional request parameters.
@@ -73,25 +73,7 @@ def get_authorization_url():
 
     return authorization_url, state
 
-def get_subscriptions(token):
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES)
-    credentials = token
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-
-    request = youtube.subscriptions().list(
-        part="snippet",
-        mine=True
-    )
-    response = request.execute()
-
-    return response
-
-def get_playlists(token):
+def get_playlists(user, page):
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
@@ -102,13 +84,13 @@ def get_playlists(token):
 
     request = youtube.playlists().list(
         part="snippet,contentDetails",
-        maxResults=25,
+        maxResults=50,
         mine=True
         )
     response = request.execute()
     return response
 
-def get_playlist_items(token, playlist_id):
+def get_playlist_items(user, playlist_id):
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
         client_config=CLIENT_CONFIG,
@@ -119,7 +101,8 @@ def get_playlist_items(token, playlist_id):
 
     request = youtube.playlistItems().list(
         part="snippet",
-        playlistId=playlist_id
+        playlistId=playlist_id,
+        maxResults=50
     )
     response = request.execute()
     return
@@ -133,28 +116,57 @@ def get_liked_videos(credentials, user):
 
     request = youtube.videos().list(
         part="snippet",
-        myRating="like"
+        myRating="like",
+        maxResults=50
     )
     response = request.execute()
-    save_credentials(credentials, user)
     return response
 
-def get_subscription_thumbnails(token, subscriptions):
-    channels = ''
-    for item in subscriptions['items']:
-        channel_id = item['snippet']['resourceId']['channelId']
-        channels += channel_id
-        channels += ', '
-    request = youtube.channels().list(
+def get_subscriptions(user, page):
+    credentials = get_credentials(user.id)
+    # Get credentials and create an API client
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
+        client_config=CLIENT_CONFIG,
+        scopes=SCOPES)
+    # Build the service object
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+    
+    request = youtube.subscriptions().list(
         part="snippet",
-        id=channels,
-        fields="items/snippet/thumbnails/default/url"
+        mine=True,
+        maxResults=50
     )
+
     response = request.execute()
-    # get response filtered only for ID and thumbnail
-    # iterate over that
-    # set the thumbnail url in the database for the corresponding channel ID
+    if response['nextPageToken']:
+        pageToken = response['nextPageToken']
+        newResponse = get_subscriptions(user, pageToken)
+        response['items'].extend(newResponse['items'])
     return response
+
+def save_playlists(playlists, user):
+    for playlist in playlists['items']:
+        newPlaylist = Playlist(
+                user_id = user.id,
+                resource_id = playlist['id'],
+                title = playlist['snippet']['title'],
+                thumbnail = playlist['snippet']['thumbnails']['default']['url'],
+                privacy_status = playlist['status']['privacyStatus']
+                )
+        db.session.add(newPlaylist)
+    db.session.commit()
+    return
+
+def save_playlist_items(playlist_items, playlistId):
+    for video in playlist_items['items']:
+        newVid = PlaylistVideo(
+                playlist_id = playlistId,
+                video_id = video['snippet']['resourceId']['videoId']
+                )
+        db.session.add(newVid)
+    db.session.commit()
+    return
 
 def save_subscriptions(subscriptions, user):
     for sub in subscriptions['items']:
@@ -165,7 +177,7 @@ def save_subscriptions(subscriptions, user):
                 thumbnail = sub['snippet']['thumbnails']['default']['url']
                 )
         db.session.add(newSub)
-        db.session.commit()
+    db.session.commit()
     return
 
 def save_liked_videos(liked_videos, user):
@@ -178,30 +190,7 @@ def save_liked_videos(liked_videos, user):
                 thumbnail = video['snippet']['thumbnails']['default']['url']
                 )
         db.session.add(newVid)
-        db.session.commit()
-    return
-
-def save_playlists(playlists, user):
-    for playlist in playlists['items']:
-        newPlaylist = Playlist(
-                user_id = user.id,
-                resource_id = playlist['id'],
-                title = playlist['snippet']['title'],
-                thumbnail = playlist['snippet']['thumbnails']['default']['url'],
-                privacy_status = playlist['status']['privacyStatus']
-                )
-        db.session.add(newPlaylist)
-        db.session.commit()
-    return
-
-def save_playlist_items(playlist_items, playlistId):
-    for video in playlist_items['items']:
-        newVid = PlaylistVideo(
-                playlist_id = playlistId,
-                video_id = video['snippet']['resourceId']['videoId']
-                )
-        db.session.add(newVid)
-        db.session.commit()
+    db.session.commit()
     return
 
 def get_access_token(code, state):
@@ -229,7 +218,3 @@ def save_credentials(response, user):
         db.session.add(newCreds)
     db.session.commit()
     return
-
-
-# if __name__ == "__main__":
-    # main()

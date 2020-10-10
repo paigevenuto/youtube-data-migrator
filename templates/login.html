@@ -7,7 +7,7 @@
     <form id="login-form" method="POST">
 
         <label class="mdc-text-field mdc-text-field--with-trailing-icon mdc-text-field--outlined {{errors.username.labelclass}}">
-            <input type="text" class="mdc-text-field__input" aria-labelledby="{{form.username.id}}" name="username" minlength="5" maxlength="20" required>
+            <input type="text" class="mdc-text-field__input" name="username" minlength="5" maxlength="20" required>
             <span class="mdc-notched-outline">
                 <span class="mdc-notched-outline__leading"></span>
                 <span class="mdc-notched-outline__notch">
@@ -24,7 +24,7 @@
         <br>
 
         <label class="mdc-text-field mdc-text-field--with-trailing-icon mdc-text-field--outlined {{errors.password.labelclass}}">
-            <input class="mdc-text-field__input" type="password" aria-labelledby="{{form.password.id}}" name="password" minlength="8" maxlength="32" required>
+            <input class="mdc-text-field__input" type="password" name="password" minlength="8" maxlength="32" required>
             <span class="mdc-notched-outline">
                 <span class="mdc-notched-outline__leading"></span>
                 <span class="mdc-notched-outline__notch">
@@ -40,12 +40,7 @@
 
 
 
-        {{ form.hidden_tag() }} <!--add type=hidden form fields -->
-
-        {% for field in form
-        if field.widget.input_type != 'hidden' %}
-        {% endfor %}
-
+        {{ form.hidden_tag() }}
         <button class="btn mdc-button mdc-button--raised">  <span class="mdc-button__ripple"></span>Submit</button>
 
         <p class="mdc-typography--body2 centered">Create an account? 
