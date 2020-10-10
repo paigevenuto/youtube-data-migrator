@@ -87,7 +87,7 @@ def get_playlists(user, page):
         pageToken=page
     )
     response = request.execute()
-    if response['nextPageToken']:
+    if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_playlists(user, pageToken)
         response['items'].extend(newResponse['items'])
@@ -106,7 +106,7 @@ def get_playlist_items(user, page, playlist_id):
         pageToken=page
     )
     response = request.execute()
-    if response['nextPageToken']:
+    if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_playlist_items(user, pageToken, playlist_id)
         response['items'].extend(newResponse['items'])
@@ -125,10 +125,10 @@ def get_liked_videos(user, page):
         pageToken=page
     )
     response = request.execute()
-    if response['nextPageToken']:
-        pageToken = response['nextPageToken']
-        newResponse = get_liked_videos(user, pageToken)
-        response['items'].extend(newResponse['items'])
+    # if 'nextPageToken' in response:
+        # pageToken = response['nextPageToken']
+        # newResponse = get_liked_videos(user, pageToken)
+        # response['items'].extend(newResponse['items'])
     return response
 
 def get_subscriptions(user, page):
@@ -145,10 +145,10 @@ def get_subscriptions(user, page):
         pageToken=page
     )
     response = request.execute()
-    if response['nextPageToken']:
-        pageToken = response['nextPageToken']
-        newResponse = get_subscriptions(user, pageToken)
-        response['items'].extend(newResponse['items'])
+    # if 'nextPageToken' in response:
+        # pageToken = response['nextPageToken']
+        # newResponse = get_subscriptions(user, pageToken)
+        # response['items'].extend(newResponse['items'])
     return response
 
 def save_playlists(playlists, user):
