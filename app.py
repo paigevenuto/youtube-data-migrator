@@ -265,10 +265,14 @@ def logout():
 def importData():
     importForm = AddImportForm()
     if importForm.validate_on_submit():
-        print(importForm.subscriptions)
-        # parse the form's children
-        # get the data with the ytmapi functions
-        # save the data with the ytmapi functions
+        username = get_session_user()
+        user = get_user(username)
+        if importForm.subscriptions:
+            ytmapi.import_subscriptions(user)
+        if importForm.likedVideos:
+            ytmapi.import_liked_videos(user)
+        if importForm.playlists:
+            ytmapi.import_playlists(user)
     return redirect('/dashboard')
 
 @app.route("/download-json", methods=["POST"])

@@ -75,7 +75,7 @@ def get_authorization_url():
 
     return authorization_url, state
 
-def get_playlists(user, page):
+def get_playlists(user, page=None):
     # Get credentials
     credentials = get_credentials(user.id)
     # Build the service object
@@ -104,51 +104,13 @@ def get_playlist_items(user, page, playlist_id):
         part="snippet",
         playlistId=playlist_id,
         maxResults=50,
-        pageToken=page
+        pageToken=page,
+        fields='fields=snippet/resourceId/videoId'
     )
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_playlist_items(user, pageToken, playlist_id)
-        response['items'].extend(newResponse['items'])
-    return response
-
-def get_liked_videos(user, page):
-    # Get credentials
-    credentials = get_credentials(user.id)
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-    request = youtube.videos().list(
-        part="snippet",
-        myRating="like",
-        maxResults=50,
-        pageToken=page
-    )
-    response = request.execute()
-    if 'nextPageToken' in response:
-        pageToken = response['nextPageToken']
-        newResponse = get_liked_videos(user, pageToken)
-        response['items'].extend(newResponse['items'])
-    return response
-
-def get_subscriptions(user, page):
-    # Get credentials
-    credentials = get_credentials(user.id)
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-    
-    request = youtube.subscriptions().list(
-        part="snippet",
-        mine=True,
-        maxResults=50,
-        pageToken=page
-    )
-    response = request.execute()
-    if 'nextPageToken' in response:
-        pageToken = response['nextPageToken']
-        newResponse = get_subscriptions(user, pageToken)
         response['items'].extend(newResponse['items'])
     return response
 
@@ -175,17 +137,45 @@ def save_playlist_items(playlist_items, playlistId):
     db.session.commit()
     return
 
-def save_subscriptions(subscriptions, user):
-    for sub in subscriptions['items']:
-        newSub = Subscription(
+def import_playlists(user):
+    playlists = get_playlists(user)
+    for playlist in playlists['items']:
+        playlist_items = get_playlist_items(user, None, playlist['id'])
+        newPlaylist = Playlist(
                 user_id = user.id,
-                channel_id = sub['snippet']['resourceId']['channelId'],
-                title = sub['snippet']['title'],
-                thumbnail = sub['snippet']['thumbnails']['default']['url']
+                resource_id = playlist['id'],
+                title = playlist['snippet']['title'],
+                thumbnail = playlist['snippet']['thumbnails']['default']['url'],
+                privacy_status = playlist['status']['privacyStatus']
                 )
-        db.session.add(newSub)
+        db.session.add(newPlaylist)
+        for video in playlist_items['items']:
+            newVid = PlaylistVideo(
+                    playlist_id = playlist['id'],
+                    video_id = video['snippet']['resourceId']['videoId']
+                    )
+            db.session.add(newVid)
     db.session.commit()
     return
+
+def get_liked_videos(user, page=None):
+    # Get credentials
+    credentials = get_credentials(user.id)
+    # Build the service object
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+    request = youtube.videos().list(
+        part="snippet",
+        myRating="like",
+        maxResults=50,
+        pageToken=page
+    )
+    response = request.execute()
+    if 'nextPageToken' in response:
+        pageToken = response['nextPageToken']
+        newResponse = get_liked_videos(user, pageToken)
+        response['items'].extend(newResponse['items'])
+    return response
 
 def save_liked_videos(liked_videos, user):
     for video in liked_videos['items']:
@@ -199,6 +189,48 @@ def save_liked_videos(liked_videos, user):
         db.session.add(newVid)
     db.session.commit()
     return
+
+def import_liked_videos(user):
+    likes = get_liked_videos(user)
+    save_liked_videos(likes, user)
+    return
+
+def get_subscriptions(user, page=None):
+    # Get credentials
+    credentials = get_credentials(user.id)
+    # Build the service object
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+    
+    request = youtube.subscriptions().list(
+        part="snippet",
+        mine=True,
+        maxResults=50,
+        pageToken=page
+    )
+    response = request.execute()
+    if 'nextPageToken' in response:
+        pageToken = response['nextPageToken']
+        newResponse = get_subscriptions(user, pageToken)
+        response['items'].extend(newResponse['items'])
+    return response
+
+def save_subscriptions(subscriptions, user):
+    for sub in subscriptions['items']:
+        newSub = Subscription(
+                user_id = user.id,
+                channel_id = sub['snippet']['resourceId']['channelId'],
+                title = sub['snippet']['title'],
+                thumbnail = sub['snippet']['thumbnails']['default']['url']
+                )
+        db.session.add(newSub)
+    db.session.commit()
+    return
+
+def import_subscriptions(user):
+    subs = get_subscriptions(user)
+    save_subscriptions(subs)
+
 
 def get_access_token(code, state):
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
