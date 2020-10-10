@@ -229,7 +229,7 @@ def save_subscriptions(subscriptions, user):
 
 def import_subscriptions(user):
     subs = get_subscriptions(user)
-    save_subscriptions(subs)
+    save_subscriptions(subs, user)
 
 
 def get_access_token(code, state):

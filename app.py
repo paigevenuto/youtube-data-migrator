@@ -261,7 +261,7 @@ def logout():
     return redirect('/')
 
 @app.route('/import', methods=["POST"])
-# @login_required
+@login_required
 def importData():
     importForm = AddImportForm()
     if importForm.validate_on_submit():
