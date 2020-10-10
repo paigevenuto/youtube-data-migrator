@@ -310,7 +310,7 @@ def likestest():
     return 'hopefully this just saved likes to the db'
 
 @app.route('/livelikestest')
-@login_required
+# @login_required
 def livelikestest():
     username = get_session_user()
     user = get_user(username)
@@ -329,7 +329,7 @@ def substest():
     return 'hopefully this just saved subs to the db'
 
 @app.route('/livesubstest')
-@login_required
+# @login_required
 def livesubstest():
     username = get_session_user()
     user = get_user(username)
