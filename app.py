@@ -297,7 +297,7 @@ def downloadJson():
 @app.route('/likestest')
 @login_required
 def likestest():
-    username = get_session_user()dashboard
+    username = get_session_user()
     user = get_user(username)
     likes = open('likes.json')
     likes = json.loads(likes.read())
