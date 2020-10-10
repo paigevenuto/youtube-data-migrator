@@ -9,7 +9,6 @@ from functools import wraps
 import os
 import ytmapi
 import json
-import oauth2client
 import tempfile
 
 app = Flask(__name__)

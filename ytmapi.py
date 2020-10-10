@@ -1,10 +1,11 @@
 from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
 import os
-import oauth2client
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
+import google.auth
+import oauthlib
 import flask
 
 api_service_name = "youtube"
