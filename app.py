@@ -246,7 +246,7 @@ def deleteSelection():
         items = request.form.to_dict()
         items.pop("csrf_token")
         for item in items.keys():
-            video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).delete()
+            LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).delete()
         db.session.commit()
     return redirect("/dashboard")
 
@@ -294,42 +294,42 @@ def downloadJson():
             json.dump(data, f)
     return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")
 
-@app.route('/likestest')
-@login_required
-def likestest():
-    username = get_session_user()
-    user = get_user(username)
-    likes = open('likes.json')
-    likes = json.loads(likes.read())
-    ytmapi.save_liked_videos(likes, user)
-    return 'hopefully this just saved likes to the db'
+# @app.route('/likestest')
+# @login_required
+# def likestest():
+    # username = get_session_user()dashboard
+    # user = get_user(username)
+    # likes = open('likes.json')
+    # likes = json.loads(likes.read())
+    # ytmapi.save_liked_videos(likes, user)
+    # return 'hopefully this just saved likes to the db'
 
-@app.route('/livelikestest')
-@login_required
-def livelikestest():
-    username = get_session_user()
-    user = get_user(username)
-    likes = ytmapi.get_liked_videos(user, None)
-    ytmapi.save_liked_videos(likes, user)
-    return 'hopefully this just saved likes to the db'
+# @app.route('/livelikestest')
+# @login_required
+# def livelikestest():
+    # username = get_session_user()
+    # user = get_user(username)
+    # likes = ytmapi.get_liked_videos(user, None)
+    # ytmapi.save_liked_videos(likes, user)
+    # return 'hopefully this just saved likes to the db'
 
-@app.route('/substest')
-@login_required
-def substest():
-    username = get_session_user()
-    user = get_user(username)
-    subs = open('subscriptions.json')
-    subs = json.loads(subs.read())
-    ytmapi.save_subscriptions(subs, user)
-    return 'hopefully this just saved subs to the db'
+# @app.route('/substest')
+# @login_required
+# def substest():
+    # username = get_session_user()
+    # user = get_user(username)
+    # subs = open('subscriptions.json')
+    # subs = json.loads(subs.read())
+    # ytmapi.save_subscriptions(subs, user)
+    # return 'hopefully this just saved subs to the db'
 
-@app.route('/livesubstest')
-@login_required
-def livesubstest():
-    username = get_session_user()
-    user = get_user(username)
-    subs = ytmapi.get_subscriptions(user, None)
-    ytmapi.save_subscriptions(subs, user)
-    return 'hopefully this just saved subs to the db'
+# @app.route('/livesubstest')
+# @login_required
+# def livesubstest():
+    # username = get_session_user()
+    # user = get_user(username)
+    # subs = ytmapi.get_subscriptions(user, None)
+    # ytmapi.save_subscriptions(subs, user)
+    # return 'hopefully this just saved subs to the db'
 
 serve(app, port=PORT)

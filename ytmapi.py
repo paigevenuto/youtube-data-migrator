@@ -1,3 +1,4 @@
+from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
 import os
 import oauth2client
 import google.oauth2.credentials
@@ -5,7 +6,6 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 import flask
-from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
 
 api_service_name = "youtube"
 api_version = "v3"
@@ -75,62 +75,65 @@ def get_authorization_url():
     return authorization_url, state
 
 def get_playlists(user, page):
+    # Get credentials
     credentials = get_credentials(user.id)
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES)
+    # Build the service object
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
-
     request = youtube.playlists().list(
         part="snippet,contentDetails",
         maxResults=50,
-        mine=True
-        )
+        mine=True,
+        pageToken=page
+    )
     response = request.execute()
+    if response['nextPageToken']:
+        pageToken = response['nextPageToken']
+        newResponse = get_playlists(user, pageToken)
+        response['items'].extend(newResponse['items'])
     return response
 
 def get_playlist_items(user, page, playlist_id):
+    # Get credentials
     credentials = get_credentials(user.id)
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES)
+    # Build the service object
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
-
     request = youtube.playlistItems().list(
         part="snippet",
         playlistId=playlist_id,
-        maxResults=50
+        maxResults=50,
+        pageToken=page
     )
     response = request.execute()
-    return
+    if response['nextPageToken']:
+        pageToken = response['nextPageToken']
+        newResponse = get_playlist_items(user, pageToken, playlist_id)
+        response['items'].extend(newResponse['items'])
+    return response
 
 def get_liked_videos(user, page):
+    # Get credentials
     credentials = get_credentials(user.id)
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES)
+    # Build the service object
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
-
     request = youtube.videos().list(
         part="snippet",
         myRating="like",
-        maxResults=50
+        maxResults=50,
+        pageToken=page
     )
     response = request.execute()
+    if response['nextPageToken']:
+        pageToken = response['nextPageToken']
+        newResponse = get_liked_videos(user, pageToken)
+        response['items'].extend(newResponse['items'])
     return response
 
 def get_subscriptions(user, page):
+    # Get credentials
     credentials = get_credentials(user.id)
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES)
     # Build the service object
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
@@ -138,9 +141,9 @@ def get_subscriptions(user, page):
     request = youtube.subscriptions().list(
         part="snippet",
         mine=True,
-        maxResults=50
+        maxResults=50,
+        pageToken=page
     )
-
     response = request.execute()
     if response['nextPageToken']:
         pageToken = response['nextPageToken']
