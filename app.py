@@ -291,14 +291,33 @@ def downloadJson():
                 "playlists":[]
                 }
         for item in items.keys():
+            if item[-7:] == 'videoid':
+                video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).first_or_404()
+                videoDict = {
+                        'channel_title' : video.channel_title,
+                        'video_title' : video.title,
+                        'video_id' : video.video_id
+                        }
+                data['liked_videos'].append(videoDict)
+            elif item[-7:] == 'channel':
+                channel = Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).first_or_404()
+                channelDict = {
+                        'channel_title' : channel.title,
+                        'channel_id' : channel.channel_id
+                        }
+                data['subscriptions'].append(channelDict)
+            elif item['7:'] == 'playlis':
+                playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
+                playlist_items = PlaylistVideo.query.filter_by(user_id=user.id).filter_by(playlist_id=item[:-7]).all()
+                playlist_contents = map(lambda x: x.video_id, playlist_items)
+                playlistDict = {
+                        'playlist_title' : playlist.title,
+                        'privacy_status' : playlist.privacy_status,
+                        'playlist_id' : playlist.resource_id,
+                        'playlist_items' : playlist_contents
+                        }
+                data['playlists'].append(playlistDict)
 
-            video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item).first_or_404()
-            videoItem = {
-                    'channel_title' : video.channel_title,
-                    'video_title' : video.title,
-                    'video_id' : video.video_id
-                    }
-            data['liked_videos'].append(videoItem)
         with os.fdopen(fd, "w") as f:
             json.dump(data, f)
     return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")

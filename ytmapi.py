@@ -138,6 +138,8 @@ def save_playlist_items(playlist_items, playlistId):
     return
 
 def import_playlists(user):
+    # TODO
+    # There is an error somewhere in here
     playlists = get_playlists(user)
     for playlist in playlists['items']:
         playlist_items = get_playlist_items(user, None, playlist['id'])
