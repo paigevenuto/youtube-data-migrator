@@ -83,6 +83,7 @@ class Credential(db.Model):
 # class Watchlater(db.Model):
     # """Watch Later.
     # Unfortunately this data is not supported by the YouTube Data v3 API
+    # I learned about this after making the model unfortunately
     # I am just leaving this code here under the circumstance that it could ever be useful."""
     #
 
@@ -98,6 +99,7 @@ class Credential(db.Model):
 # class AddedPlaylist(db.Model):
     # """Added Playlist.
     # Unfortunately this data is not supported by the YouTube Data v3 API
+    # I learned about this after making the model unfortunately
     # I am just leaving this code here under the circumstance that it could ever be useful."""
     #
 
