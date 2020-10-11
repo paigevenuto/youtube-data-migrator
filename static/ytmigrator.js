@@ -139,4 +139,17 @@ $(function () {
     exportChoiceDialog.close();
     downloadDialog.open();
   });
+  let exportOauthDialog = new mdc.dialog.MDCDialog(
+    document.querySelector("#export-oauth-dialog")
+  );
+  $("#export-choice-btn").click(() => {
+    exportChoiceDialog.close();
+    window.open("/auth/google/signin", "authURL", "width=400,height=600");
+    exportOauthDialog.open();
+  });
+  $("#export-oauth-next-btn").click(() => {
+    exportOauthDialog.close();
+    $("#selections").attr("action", "/export");
+    exportFormDialog.open();
+  });
 });

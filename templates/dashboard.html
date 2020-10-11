@@ -178,6 +178,7 @@
             <div class="mdc-dialog__scrim"></div>
         </div>
 
+
         <div class="mdc-dialog" id="import-oauth-dialog">
             <div class="mdc-dialog__container">
                 <div class="mdc-dialog__surface"
@@ -191,6 +192,28 @@
                             <span class="mdc-button__label">Cancel</span>
                         </button>
                         <button class="mdc-button mdc-dialog__button" id="import-oauth-next-btn">
+                            <div class="mdc-button__ripple"></div>
+                            <span class="mdc-button__label">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mdc-dialog__scrim"></div>
+        </div>
+
+        <div class="mdc-dialog" id="export-oauth-dialog">
+            <div class="mdc-dialog__container">
+                <div class="mdc-dialog__surface"
+                     role="alertdialog">
+                    <div class="mdc-dialog__content">
+                        Please link Google account before clicking next.
+                    </div>
+                    <div class="mdc-dialog__actions">
+                        <button class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
+                            <div class="mdc-button__ripple"></div>
+                            <span class="mdc-button__label">Cancel</span>
+                        </button>
+                        <button class="mdc-button mdc-dialog__button" id="export-oauth-next-btn">
                             <div class="mdc-button__ripple"></div>
                             <span class="mdc-button__label">Next</span>
                         </button>
@@ -228,6 +251,31 @@
         <div class="wrapper mdc-elevation--z1">
 
             <form action="/selections" method="POST" id="selections">
+
+                
+        <div class="mdc-dialog" id="export-form-dialog">
+            <div class="mdc-dialog__container">
+                <div class="mdc-dialog__surface"
+                     role="alertdialog">
+                            <div class="mdc-dialog__content">
+                                Export selected items?
+                            </div>
+                            <div class="mdc-dialog__actions">
+                                <button class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
+                                    <div class="mdc-button__ripple"></div>
+                                    <span class="mdc-button__label">Cancel</span>
+                                </button>
+                                <button class="mdc-button mdc-dialog__button">
+                                    <div class="mdc-button__ripple"></div>
+                                    <span class="mdc-button__label">Export</span>
+                                </button>
+                            </div>
+                </div>
+            </div>
+            <div class="mdc-dialog__scrim"></div>
+        </div>
+
+
 
 
                 <div class="mdc-dialog" id="delete-sel-dialog">

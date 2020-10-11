@@ -322,6 +322,24 @@ def downloadJson():
             json.dump(data, f)
     return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")
 
+@app.route("/export", methods=["POST"])
+@login_required
+def exportData():
+    selectionform = AddSelectionForm()
+    if selectionform.validate_on_submit():
+        username = get_session_user()
+        user = get_user(username)
+        items = request.form.to_dict()
+        items.pop("csrf_token")
+        for item in items.keys():
+            if item[-7:] == 'videoid':
+                video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).first_or_404()
+            elif item[-7:] == 'channel':
+                channel = Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).first_or_404()
+            elif item[-7:] == 'playlis':
+                playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
+    return 'This may take a while, please wait for results'
+
 @app.route('/testplaylists')
 def testplaylists():
     username = get_session_user()
