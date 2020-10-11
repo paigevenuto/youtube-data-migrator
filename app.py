@@ -249,7 +249,7 @@ def deleteSelection():
                 LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).delete()
             elif item[-7:] == 'channel':
                 Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).delete()
-            elif item['7:'] == 'playlis':
+            elif item[-7:] == 'playlis':
                 Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).delete()
         db.session.commit()
     return redirect("/dashboard")
@@ -306,7 +306,7 @@ def downloadJson():
                         'channel_id' : channel.channel_id
                         }
                 data['subscriptions'].append(channelDict)
-            elif item['7:'] == 'playlis':
+            elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
                 playlist_items = PlaylistVideo.query.filter_by(user_id=user.id).filter_by(playlist_id=item[:-7]).all()
                 playlist_contents = map(lambda x: x.video_id, playlist_items)
@@ -321,13 +321,5 @@ def downloadJson():
         with os.fdopen(fd, "w") as f:
             json.dump(data, f)
     return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")
-
-@app.route('/testplaylists')
-def testplaylists():
-    username = get_session_user()
-    user = get_user(username)
-    playlists = ytmapi.get_playlists(user)
-    ytmapi.save_playlists(playlists, user)
-    return 'hopefully this saved some playlists'
 
 serve(app, port=PORT)
