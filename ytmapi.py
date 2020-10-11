@@ -7,6 +7,9 @@ import googleapiclient.errors
 import google.auth
 import oauthlib
 import flask
+import logging
+
+logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.INFO)
 
 api_service_name = "youtube"
 api_version = "v3"
@@ -39,8 +42,6 @@ SCOPES = ["openid",
      "https://www.googleapis.com/auth/userinfo.profile",
      "https://www.googleapis.com/auth/youtube",
      "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
-
-discovery.build(api, version, http=http, cache_discovery=False)
 
 def get_credentials(user_id):
     token = Credential.query.filter_by(user_id=user_id).first_or_404()
