@@ -83,7 +83,7 @@ def get_playlists(user, page=None):
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials, cache_discovery=False)
     request = youtube.playlists().list(
-        part="snippet,contentDetails",
+        part="snippet, status",
         maxResults=50,
         mine=True,
         pageToken=page
