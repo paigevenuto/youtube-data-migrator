@@ -105,8 +105,7 @@ def get_playlist_items(user, playlist_id, page=None):
         part="snippet",
         playlistId=playlist_id,
         maxResults=50,
-        pageToken=page,
-        fields='fields=items/snippet/resourceId/videoId'
+        pageToken=page
     )
     response = request.execute()
     if 'nextPageToken' in response:
