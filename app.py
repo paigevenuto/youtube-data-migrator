@@ -322,4 +322,12 @@ def downloadJson():
             json.dump(data, f)
     return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")
 
+@app.route('/testplaylists')
+def testplaylists():
+    username = get_session_user()
+    user = get_user(username)
+    playlists = ytmapi.get_playlists(user)
+    ytmapi.save_playlists(playlists, user)
+    return 'hopefully this saved some playlists'
+
 serve(app, port=PORT)
