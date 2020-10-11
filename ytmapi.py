@@ -151,12 +151,12 @@ def import_playlists(user):
                 privacy_status = playlist['status']['privacyStatus']
                 )
         db.session.add(newPlaylist)
-        for video in playlist_items['items']:
-            newVid = PlaylistVideo(
-                    playlist_id = playlist['id'],
-                    video_id = video['snippet']['resourceId']['videoId']
-                    )
-            db.session.add(newVid)
+        # for video in playlist_items['items']:
+            # newVid = PlaylistVideo(
+                    # playlist_id = playlist['id'],
+                    # video_id = video['snippet']['resourceId']['videoId']
+                    # )
+            # db.session.add(newVid)
     db.session.commit()
     return
 
