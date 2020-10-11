@@ -2,7 +2,8 @@ from models import db, connect_db, User, Subscription, LikedVideo, Playlist, Pla
 import os
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
-import googleapiclient
+import googleapiclient.discovery
+import googleapiclient.errors
 import google.auth
 import oauthlib
 import flask
@@ -139,23 +140,24 @@ def save_playlist_items(playlist_items, playlistId):
 
 def import_playlists(user):
     playlists = get_playlists(user)
-    for playlist in playlists['items']:
-        playlist_items = get_playlist_items(user, None, playlist['id'])
-        newPlaylist = Playlist(
-                user_id = user.id,
-                resource_id = playlist['id'],
-                title = playlist['snippet']['title'],
-                thumbnail = playlist['snippet']['thumbnails']['default']['url'],
-                privacy_status = playlist['status']['privacyStatus']
-                )
-        db.session.add(newPlaylist)
+    save_playlists(playlists)
+    # for playlist in playlists['items']:
+        # playlist_items = get_playlist_items(user, None, playlist['id'])
+        # newPlaylist = Playlist(
+                # user_id = user.id,
+                # resource_id = playlist['id'],
+                # title = playlist['snippet']['title'],
+                # thumbnail = playlist['snippet']['thumbnails']['default']['url'],
+                # privacy_status = playlist['status']['privacyStatus']
+                # )
+        # db.session.add(newPlaylist)
         # for video in playlist_items['items']:
             # newVid = PlaylistVideo(
                     # playlist_id = playlist['id'],
                     # video_id = video['snippet']['resourceId']['videoId']
                     # )
             # db.session.add(newVid)
-    db.session.commit()
+    # db.session.commit()
     return
 
 def get_liked_videos(user, page=None):
