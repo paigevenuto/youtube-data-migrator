@@ -95,7 +95,7 @@ def get_playlists(user, page=None):
         response['items'].extend(newResponse['items'])
     return response
 
-def get_playlist_items(user, page, playlist_id):
+def get_playlist_items(user, playlist_id, page=None):
     # Get credentials
     credentials = get_credentials(user.id)
     # Build the service object
@@ -111,7 +111,7 @@ def get_playlist_items(user, page, playlist_id):
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
-        newResponse = get_playlist_items(user, pageToken, playlist_id)
+        newResponse = get_playlist_items(user, playlist_id, pageToken)
         response['items'].extend(newResponse['items'])
     return response
 
@@ -141,23 +141,9 @@ def save_playlist_items(playlist_items, playlistId):
 def import_playlists(user):
     playlists = get_playlists(user)
     save_playlists(playlists, user)
-    # for playlist in playlists['items']:
-        # playlist_items = get_playlist_items(user, None, playlist['id'])
-        # newPlaylist = Playlist(
-                # user_id = user.id,
-                # resource_id = playlist['id'],
-                # title = playlist['snippet']['title'],
-                # thumbnail = playlist['snippet']['thumbnails']['default']['url'],
-                # privacy_status = playlist['status']['privacyStatus']
-                # )
-        # db.session.add(newPlaylist)
-        # for video in playlist_items['items']:
-            # newVid = PlaylistVideo(
-                    # playlist_id = playlist['id'],
-                    # video_id = video['snippet']['resourceId']['videoId']
-                    # )
-            # db.session.add(newVid)
-    # db.session.commit()
+    for playlist in playlists['items']:
+        playlist_items = get_playlist_items(user, playlist['id'])
+        save_playlist_items(playlist_items, playlist['id'])
     return
 
 def get_liked_videos(user, page=None):
