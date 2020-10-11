@@ -127,7 +127,7 @@ def save_playlists(playlists, user):
     db.session.commit()
     return
 
-def save_playlist_items(playlist_items, playlistId):
+def save_playlist_items(playlist_items, dbPlaylistId):
     for video in playlist_items['items']:
         newVid = PlaylistVideo(
                 playlist_id = playlistId,
@@ -141,8 +141,10 @@ def import_playlists(user):
     playlists = get_playlists(user)
     save_playlists(playlists, user)
     for playlist in playlists['items']:
-        playlist_items = get_playlist_items(user, playlist['id'])
-        save_playlist_items(playlist_items, playlist['id'])
+        playlist_id = playlist['id']
+        dbPlaylist = Playlist.query.filter_by(resource_id=playlist_id).first_or_404()
+        playlist_items = get_playlist_items(user, playlist_id)
+        save_playlist_items(playlist_items, dbPlaylist.id)
     return
 
 def get_liked_videos(user, page=None):
