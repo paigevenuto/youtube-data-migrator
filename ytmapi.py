@@ -100,7 +100,7 @@ def get_playlist_items(user, playlist_id, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+        api_service_name, api_version, credentials=credentials, cache_discovery=False)
     request = youtube.playlistItems().list(
         part="snippet",
         playlistId=playlist_id,
@@ -130,7 +130,7 @@ def save_playlists(playlists, user):
 def save_playlist_items(playlist_items, dbPlaylistId):
     for video in playlist_items['items']:
         newVid = PlaylistVideo(
-                playlist_id = playlistId,
+                playlist_id = dbPlaylistId,
                 video_id = video['snippet']['resourceId']['videoId']
                 )
         db.session.add(newVid)
