@@ -83,7 +83,7 @@ def get_playlists(user, page=None):
         api_service_name, api_version, credentials=credentials)
     request = youtube.playlists().list(
         part="snippet,contentDetails",
-        maxResults=50,
+        maxResults=15,
         mine=True,
         pageToken=page
     )
@@ -103,7 +103,7 @@ def get_playlist_items(user, page, playlist_id):
     request = youtube.playlistItems().list(
         part="snippet",
         playlistId=playlist_id,
-        maxResults=50,
+        maxResults=15,
         pageToken=page,
         fields='fields=snippet/resourceId/videoId'
     )
@@ -169,7 +169,7 @@ def get_liked_videos(user, page=None):
     request = youtube.videos().list(
         part="snippet",
         myRating="like",
-        maxResults=50,
+        maxResults=15,
         pageToken=page
     )
     response = request.execute()
@@ -207,7 +207,7 @@ def get_subscriptions(user, page=None):
     request = youtube.subscriptions().list(
         part="snippet",
         mine=True,
-        maxResults=50,
+        maxResults=15,
         pageToken=page
     )
     response = request.execute()
