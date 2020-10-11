@@ -140,7 +140,7 @@ def save_playlist_items(playlist_items, playlistId):
 
 def import_playlists(user):
     playlists = get_playlists(user)
-    save_playlists(playlists)
+    save_playlists(playlists, user)
     # for playlist in playlists['items']:
         # playlist_items = get_playlist_items(user, None, playlist['id'])
         # newPlaylist = Playlist(
