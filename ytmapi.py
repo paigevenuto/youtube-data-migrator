@@ -40,6 +40,8 @@ SCOPES = ["openid",
      "https://www.googleapis.com/auth/youtube",
      "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
 
+discovery.build(api, version, http=http, cache_discovery=False)
+
 def get_credentials(user_id):
     token = Credential.query.filter_by(user_id=user_id).first_or_404()
     credentials = google.oauth2.credentials.Credentials(
