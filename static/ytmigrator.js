@@ -147,6 +147,9 @@ $(function () {
     window.open("/auth/google/signin", "authURL", "width=400,height=600");
     exportOauthDialog.open();
   });
+  let exportFormDialog = new mdc.dialog.MDCDialog(
+    document.querySelector("#export-form-dialog")
+  );
   $("#export-oauth-next-btn").click(() => {
     exportOauthDialog.close();
     $("#selections").attr("action", "/export");
