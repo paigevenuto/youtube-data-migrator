@@ -2,8 +2,7 @@ from models import db, connect_db, User, Subscription, LikedVideo, Playlist, Pla
 import os
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
-import googleapiclient.discovery
-import googleapiclient.errors
+import googleapiclient
 import google.auth
 import oauthlib
 import flask
@@ -139,8 +138,6 @@ def save_playlist_items(playlist_items, playlistId):
     return
 
 def import_playlists(user):
-    # TODO
-    # There is an error somewhere in here
     playlists = get_playlists(user)
     for playlist in playlists['items']:
         playlist_items = get_playlist_items(user, None, playlist['id'])
