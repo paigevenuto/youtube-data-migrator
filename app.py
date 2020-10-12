@@ -251,7 +251,7 @@ def deleteSelection():
                 Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).delete()
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).delete()
-                print(dir(playlist))
+                db.session.delete(playlist)
         db.session.commit()
     return redirect("/dashboard")
 
