@@ -236,7 +236,7 @@ def delAcc():
     return redirect("/")
 
 @app.route('/delete', methods=["POST"])
-@login_required
+# @login_required
 def deleteSelection():
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
@@ -250,7 +250,8 @@ def deleteSelection():
             elif item[-7:] == 'channel':
                 Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).delete()
             elif item[-7:] == 'playlis':
-                Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).delete()
+                pl = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7])
+                db.session.delete(pl)
         db.session.commit()
     return redirect("/dashboard")
 
@@ -261,7 +262,7 @@ def logout():
     return redirect('/')
 
 @app.route('/import', methods=["POST"])
-# @login_required
+@login_required
 def importData():
     importForm = AddImportForm()
     if importForm.validate_on_submit():

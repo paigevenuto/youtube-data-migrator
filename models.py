@@ -66,9 +66,6 @@ class PlaylistVideo(db.Model):
     id = db.Column( db.Integer, primary_key=True, autoincrement=True)
     playlist_id = db.Column( db.Integer, db.ForeignKey('playlists.id'))
     video_id = db.Column( db.Text, nullable=False)
-    # title = db.Column( db.Text, nullable=False)
-    # channel_title = db.Column( db.Text, nullable=False)
-    # thumbnail = db.Column( db.Text, nullable=False)
 
 class Credential(db.Model):
     """Credential."""
@@ -79,35 +76,3 @@ class Credential(db.Model):
     user_id = db.Column( db.Integer, db.ForeignKey('users.id'), primary_key=True)
     token = db.Column( db.Text, nullable=False)
     refresh_token = db.Column( db.Text, nullable=False)
-
-# class Watchlater(db.Model):
-    # """Watch Later.
-    # Unfortunately this data is not supported by the YouTube Data v3 API
-    # I learned about this after making the model unfortunately
-    # I am just leaving this code here under the circumstance that it could ever be useful."""
-    #
-
-    # __tablename__ = "watch_later"
-
-    # id = db.Column( db.Integer, primary_key=True, autoincrement=True)
-    # user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
-    # video_id = db.Column( db.Text, nullable=False)
-    # title = db.Column( db.Text, nullable=False)
-    # channel_title = db.Column( db.Text, nullable=False)
-    # thumbnail = db.Column( db.Text, nullable=False)
-
-# class AddedPlaylist(db.Model):
-    # """Added Playlist.
-    # Unfortunately this data is not supported by the YouTube Data v3 API
-    # I learned about this after making the model unfortunately
-    # I am just leaving this code here under the circumstance that it could ever be useful."""
-    #
-
-    # __tablename__ = "added_playlists"
-
-    # id = db.Column( db.Integer, primary_key=True, autoincrement=True)
-    # user_id = db.Column( db.Integer, db.ForeignKey('users.id'))
-    # thumbnail = db.Column( db.Text, nullable=False)
-    # title = db.Column( db.Text, nullable=False)
-    # channel_title = db.Column( db.Text, nullable=False)
-    # playlist_id = db.Column( db.Text, nullable=False)
