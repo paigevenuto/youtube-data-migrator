@@ -59,12 +59,12 @@ class Playlist(db.Model):
     playlist_videos = db.relationship('PlaylistVideo', backref='playlists', cascade='all, delete-orphan')
 
 class PlaylistVideo(db.Model):
-    """Playlist Video."""
+    """PlaylistVideo."""
 
     __tablename__ = "playlist_videos"
 
     id = db.Column( db.Integer, primary_key=True, autoincrement=True)
-    playlist_id = db.Column( db.Integer, db.ForeignKey('playlists.id'))
+    playlist_id = db.Column( db.Integer, db.ForeignKey('playlists.id', ondelete="CASCADE"))
     video_id = db.Column( db.Text, nullable=False)
 
 class Credential(db.Model):
