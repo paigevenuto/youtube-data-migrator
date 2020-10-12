@@ -250,8 +250,8 @@ def deleteSelection():
             elif item[-7:] == 'channel':
                 Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).delete()
             elif item[-7:] == 'playlis':
-                pl = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7])
-                db.session.delete(pl)
+                playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).delete()
+                print(dir(playlist))
         db.session.commit()
     return redirect("/dashboard")
 
@@ -309,13 +309,13 @@ def downloadJson():
                 data['subscriptions'].append(channelDict)
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
-                playlist_items = PlaylistVideo.query.filter_by(user_id=user.id).filter_by(playlist_id=item[:-7]).all()
-                playlist_contents = map(lambda x: x.video_id, playlist_items)
+                # playlist_items = PlaylistVideo.query.filter_by(user_id=user.id).filter_by(playlist_id=item[:-7]).all()
+                # playlist_contents = map(lambda x: x.video_id, playlist_items)
                 playlistDict = {
                         'playlist_title' : playlist.title,
                         'privacy_status' : playlist.privacy_status,
                         'playlist_id' : playlist.resource_id,
-                        'playlist_items' : playlist_contents
+                        # 'playlist_items' : playlist_contents
                         }
                 data['playlists'].append(playlistDict)
 
