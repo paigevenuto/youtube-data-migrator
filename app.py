@@ -309,8 +309,8 @@ def downloadJson():
                 data['subscriptions'].append(channelDict)
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
-                playlist_items = PlaylistVideo.query.filter_by(playlist_id=playlist.id)
-                playlist_contents = map(lambda x: x.video_id, playlist_items)
+                playlist_items = PlaylistVideo.query.filter_by(playlist_id=playlist.id).all()
+                playlist_contents = list(map(lambda x: x.video_id, playlist_items))
                 playlistDict = {
                         'playlist_title' : playlist.title,
                         'privacy_status' : playlist.privacy_status,
