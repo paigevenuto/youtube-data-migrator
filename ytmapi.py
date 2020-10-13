@@ -257,6 +257,6 @@ def revoke_creds(user):
               params={'token': credentials.token},
               headers = {'content-type': 'application/x-www-form-urlencoded'})
 
-        db.session.delete(credentials)
-        db.session.commit
+        # db.session.delete(credentials)
+        # db.session.commit
     return
