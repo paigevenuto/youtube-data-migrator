@@ -259,3 +259,4 @@ def revoke_creds(user):
 
         db.session.delete(credentials)
         db.commit
+    return

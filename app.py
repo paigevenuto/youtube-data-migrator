@@ -173,7 +173,7 @@ def signup():
 
 
 @app.route('/auth/google/signin')
-@login_required
+# @login_required
 def authenticate():
     # Clear token as a precaution
     username = get_session_user()
