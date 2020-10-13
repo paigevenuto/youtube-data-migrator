@@ -114,7 +114,11 @@ $(function () {
     document.querySelector("#import-form-dialog")
   );
   function importPopup() {
-    window.open("/auth/google/signin", "authURL", "width=400,height=600");
+    let authURL = window.open(
+      "/auth/google/signin",
+      "authURL",
+      "width=400,height=600"
+    );
     importOauthDialog.open();
   }
   $("#import-more-btn").click(importPopup);
@@ -144,7 +148,11 @@ $(function () {
   );
   $("#export-choice-btn").click(() => {
     exportChoiceDialog.close();
-    window.open("/auth/google/signin", "authURL", "width=400,height=600");
+    let authURL = window.open(
+      "/auth/google/signin",
+      "authURL",
+      "width=400,height=600"
+    );
     exportOauthDialog.open();
   });
   let exportFormDialog = new mdc.dialog.MDCDialog(

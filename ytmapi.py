@@ -6,7 +6,7 @@ import googleapiclient.discovery
 import googleapiclient.errors
 import google.auth
 import oauthlib
-import flask
+import requests
 
 api_service_name = "youtube"
 api_version = "v3"
@@ -34,11 +34,11 @@ CLIENT_CONFIG = {'web': {
 
 # This scope will allow the application to manage your calendars
 SCOPES = ["openid",
-     "https://www.googleapis.com/auth/youtube.readonly",
-     "https://www.googleapis.com/auth/userinfo.email",
-     "https://www.googleapis.com/auth/userinfo.profile",
-     "https://www.googleapis.com/auth/youtube",
-     "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
+        "https://www.googleapis.com/auth/youtube.readonly",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/youtube",
+        "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
 
 
 def get_credentials(user_id):
@@ -58,21 +58,21 @@ def get_authorization_url():
     # Use the information in the client_secret.json to identify
     # the application requesting authorization.
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES)
+            client_config=CLIENT_CONFIG,
+            scopes=SCOPES)
 
     # Indicate where the API server will redirect the user after the user completes
     # the authorization flow. The redirect URI is required.
     flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth/google/callback'
-    
+
     # Generate URL for request to Google's OAuth 2.0 server.
     # Use kwargs to set optional request parameters.
     authorization_url, state = flow.authorization_url(
-    # Enable offline access so that you can refresh an access token without
-    # re-prompting the user for permission. Recommended for web server apps.
-    access_type='offline',
-    # Enable incremental authorization. Recommended as a best practice.
-    include_granted_scopes='true')
+            # Enable offline access so that you can refresh an access token without
+            # re-prompting the user for permission. Recommended for web server apps.
+            access_type='offline',
+            # Enable incremental authorization. Recommended as a best practice.
+            include_granted_scopes='true')
 
     return authorization_url, state
 
@@ -81,13 +81,13 @@ def get_playlists(user, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials, cache_discovery=False)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
     request = youtube.playlists().list(
-        part="snippet, status",
-        maxResults=50,
-        mine=True,
-        pageToken=page
-    )
+            part="snippet, status",
+            maxResults=50,
+            mine=True,
+            pageToken=page
+            )
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
@@ -100,13 +100,13 @@ def get_playlist_items(user, playlist_id, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials, cache_discovery=False)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
     request = youtube.playlistItems().list(
-        part="snippet",
-        playlistId=playlist_id,
-        maxResults=50,
-        pageToken=page
-    )
+            part="snippet",
+            playlistId=playlist_id,
+            maxResults=50,
+            pageToken=page
+            )
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
@@ -152,13 +152,13 @@ def get_liked_videos(user, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials)
     request = youtube.videos().list(
-        part="snippet",
-        myRating="like",
-        maxResults=50,
-        pageToken=page
-    )
+            part="snippet",
+            myRating="like",
+            maxResults=50,
+            pageToken=page
+            )
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
@@ -189,15 +189,15 @@ def get_subscriptions(user, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-    
+            api_service_name, api_version, credentials=credentials)
+
     request = youtube.subscriptions().list(
-        part="snippet",
-        mine=True,
-        maxResults=50,
-        order='alphabetical',
-        pageToken=page
-    )
+            part="snippet",
+            mine=True,
+            maxResults=50,
+            order='alphabetical',
+            pageToken=page
+            )
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
@@ -224,9 +224,9 @@ def import_subscriptions(user):
 
 def get_access_token(code, state):
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        client_config=CLIENT_CONFIG,
-        scopes=SCOPES,
-        state=state)
+            client_config=CLIENT_CONFIG,
+            scopes=SCOPES,
+            state=state)
     flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth/google/callback'
 
     flow.fetch_token(code=code)
@@ -247,3 +247,15 @@ def save_credentials(response, user):
         db.session.add(newCreds)
     db.session.commit()
     return
+
+def revoke_creds(user):
+    if Credential.query.filter_by(user_id=user_id).count() > 0:
+        # Get credentials
+        credentials = Credential.query.filter_by(user_id=user_id).first_or_404()
+
+        revoke = requests.post('https://oauth2.googleapis.com/revoke',
+              params={'token': credentials.token},
+              headers = {'content-type': 'application/x-www-form-urlencoded'})
+
+        db.session.delete(credentials)
+        db.commit

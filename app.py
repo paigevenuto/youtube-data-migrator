@@ -175,6 +175,11 @@ def signup():
 @app.route('/auth/google/signin')
 @login_required
 def authenticate():
+    # Clear token as a precaution
+    username = get_session_user()
+    user = get_user(username)
+    ytmapi.revoke_creds(user)
+
     # Generate authorization_url and state token
     authorization_url = ytmapi.get_authorization_url()
 
