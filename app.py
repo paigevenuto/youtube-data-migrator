@@ -277,7 +277,7 @@ def importData():
     return redirect('/dashboard')
 
 @app.route("/download-json", methods=["POST"])
-@login_required
+# @login_required
 def downloadJson():
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
