@@ -251,7 +251,7 @@ def save_credentials(response, user):
 def revoke_creds(user):
     if Credential.query.filter_by(user_id=user.id).count() > 0:
         # Get credentials
-        credentials = Credential.query.filter_by(user_id=user_id).first_or_404()
+        credentials = Credential.query.filter_by(user_id=user.id).first_or_404()
 
         revoke = requests.post('https://oauth2.googleapis.com/revoke',
               params={'token': credentials.token},
