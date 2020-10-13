@@ -253,7 +253,7 @@ def revoke_creds(user):
         # Get credentials
         credentials = Credential.query.filter_by(user_id=user.id).first_or_404()
 
-        revoke = requests.post('https://oauth2.googleapis.com/revoke',
+        requests.post('https://oauth2.googleapis.com/revoke',
               params={'token': credentials.token},
               headers = {'content-type': 'application/x-www-form-urlencoded'})
 
