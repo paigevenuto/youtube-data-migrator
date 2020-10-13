@@ -249,7 +249,7 @@ def save_credentials(response, user):
     return
 
 def revoke_creds(user):
-    if Credential.query.filter_by(user_id=user_id).count() > 0:
+    if Credential.query.filter_by(user_id=user.id).count() > 0:
         # Get credentials
         credentials = Credential.query.filter_by(user_id=user_id).first_or_404()
 
