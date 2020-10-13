@@ -29,16 +29,16 @@ Console.
 ## Outline
 
 User data that can be exported at the user's choice will only include the
-user's channel subscriptions, liked videos, their Watch Later playlist and it's
-content, any saved playlists, and any user-created playlists along with their
-content.
+user's channel subscriptions, liked videos, and any user-created playlists
+along with their content.
 
 The application will not handle saving or migrating the user's own videos,
-comments, view history, or other data not otherwise mentioned.
+comments, view history, watch later, added playlists, or other data not
+otherwise mentioned.
 
-Login will be handled with BCrypt. Linking YouTube will be handled with the
-Google API, and authentication with OAuth, which means no sensitive data will
-be stored. All user data will be deleted automatically after two weeks.
+Login will be handled with BCrypt and JWT. Linking YouTube will be handled with the
+Google API, and authentication with OAuth. All user data will be deleted
+automatically after two weeks.
 
 Due to API usage quota, this means that exporting the user's YouTube data will
 use up little quota cost, however importing that data will cost 50 out of the
@@ -49,8 +49,6 @@ This limitation is of little concern at the moment since this is an
 educational/experimental app running off Heroku, however if it appears to be a
 success I will consider more appropriate hosting and can make a request to
 YouTube for a quota increase accordingly.
-
-If the user's data is too large to work within the quota it will notify them.
 
 The user can save their data to a file, although the importing of data will
 only use the exported data on the server side, rather than importing from a
