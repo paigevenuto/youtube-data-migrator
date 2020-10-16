@@ -211,7 +211,7 @@ def auth():
     user = get_user(username)
     credentials = ytmapi.get_access_token(auth_code, state)
     ytmapi.save_credentials(credentials, user)
-    return 'this window should close automatically'
+    return 'Account successfully linked. You may now close this window.'
 
 @app.route('/dashboard')
 @login_required
@@ -345,12 +345,5 @@ def exportData():
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
     return 'This may take a while, please wait for results'
-
-@app.route('/testplaylists')
-def testplaylists():
-    username = get_session_user()
-    user = get_user(username)
-    playlists = ytmapi.get_playlists(user)
-    ytmapi.save_playlists(playlists, user)
 
 serve(app, port=PORT)

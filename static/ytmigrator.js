@@ -1,9 +1,17 @@
 $(function () {
   function handleAuthWIndow() {
-    if (typeof Worker !== "undefined") {
-      authWorker = new Worker("handleOauthWindow.js");
-      authWorker.onmessage = () => authURL.close();
+    let authURL = window.open(
+      "/auth/google/signin",
+      "authURL",
+      "width=400,height=600"
+    );
+    function checkIfComplete() {
+      if (authURL.location.href.includes("login")) {
+        postMessage("closeNow", targetOrigin);
+      }
+      return;
     }
+    setInterval(checkIfComplete, 500);
     return;
   }
 
