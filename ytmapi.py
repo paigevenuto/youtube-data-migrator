@@ -282,7 +282,7 @@ def export_rating(video, user):
         api_service_name, api_version, credentials=credentials)
 
     request = youtube.videos().rate(
-        id=video.video_id
+        id=video.video_id,
         rating="like"
     )
     request.execute()
