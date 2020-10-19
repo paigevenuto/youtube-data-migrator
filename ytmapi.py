@@ -257,6 +257,7 @@ def export_subscription(channel, user):
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.subscriptions().insert(
+            part="snippet",
             body={
                 "snippet": {
                     "resourceId": {
@@ -291,7 +292,7 @@ def export_playlist(playlist, user):
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.playlists().insert(
-            part="id, snippet, status",
+            part="snippet, status",
             body={
                 "snippet": {
                     "title": playlist.title
