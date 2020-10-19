@@ -42,10 +42,18 @@ SCOPES = ["openid",
 
 
 def make_expiration_date():
+    """
+    Returns timestamp used for pruning database
+    """
+
     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=14)
     return expiration.timestamp()
 
 def get_credentials(user_id):
+    """
+    Returns credentials object formatted for Google API requests
+    """
+
     token = Credential.query.filter_by(user_id=user_id).first_or_404()
     credentials = google.oauth2.credentials.Credentials(
             token = token.token,
@@ -55,10 +63,15 @@ def get_credentials(user_id):
             client_secret = GOOGLE_CLIENT_SECRET,
             scopes = SCOPES
             )
+
     return credentials
 
 
 def get_authorization_url():
+    """
+    Makes OAuth 2.0 flow url for user to authorize consent
+    """
+
     # Use the information in the client_secret.json to identify
     # the application requesting authorization.
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
@@ -81,45 +94,68 @@ def get_authorization_url():
     return authorization_url, state
 
 def get_playlists(user, page=None):
+    """
+    Authenticated API request to get user's playlists
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
+    # Request parameters
     request = youtube.playlists().list(
             part="snippet, status",
             maxResults=50,
             mine=True,
             pageToken=page
             )
+
+    # Recursive requests append to original response object until no data left
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_playlists(user, pageToken)
         response['items'].extend(newResponse['items'])
+
     return response
 
 def get_playlist_items(user, playlist_id, page=None):
+    """
+    Authenticated API request to get contents of single playlist
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
+
+    # Request parameters
     request = youtube.playlistItems().list(
             part="snippet",
             playlistId=playlist_id,
             maxResults=50,
             pageToken=page
             )
+
+    # Recursive requests append to original response object until no data left
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_playlist_items(user, playlist_id, pageToken)
         response['items'].extend(newResponse['items'])
+
     return response
 
 def save_playlists(playlists, user):
+    """
+    Saves playlist data from YouTube API response to database
+    """
+
     for playlist in playlists['items']:
         newPlaylist = Playlist(
                 user_id = user.id,
@@ -131,9 +167,13 @@ def save_playlists(playlists, user):
                 )
         db.session.add(newPlaylist)
     db.session.commit()
+
     return
 
 def save_playlist_items(playlist_items, dbPlaylistId):
+    """
+    Saves playlist items data from YouTube API response to database
+    """
     for video in playlist_items['items']:
         newVid = PlaylistVideo(
                 playlist_id = dbPlaylistId,
@@ -141,38 +181,69 @@ def save_playlist_items(playlist_items, dbPlaylistId):
                 )
         db.session.add(newVid)
     db.session.commit()
+
     return
 
 def import_playlists(user):
+    """
+    Gets and saves playlists and playlist items
+    """
+
+    # Gets playlists from API
     playlists = get_playlists(user)
+
+    # Saves playlists to database
     save_playlists(playlists, user)
+
+    # Iterates over playlist object to save playlist items to appropriate playlist in database
     for playlist in playlists['items']:
+
+        # Get matching playlist in database
         playlist_id = playlist['id']
         dbPlaylist = Playlist.query.filter_by(resource_id=playlist_id).first_or_404()
+
+        # Gets playlist items from API
         playlist_items = get_playlist_items(user, playlist_id)
+
+        # Saves playlist items to database
         save_playlist_items(playlist_items, dbPlaylist.id)
+
     return
 
 def get_liked_videos(user, page=None):
+    """
+    Authenticated API request to get user's liked videos
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
+
+    # Request parameters
     request = youtube.videos().list(
             part="snippet",
             myRating="like",
             maxResults=50,
             pageToken=page
             )
+
+    # Recursive requests append to original response object until no data left
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_liked_videos(user, pageToken)
         response['items'].extend(newResponse['items'])
+
     return response
 
 def save_liked_videos(liked_videos, user):
+    """
+    Saves liked videos data from YouTube API response to database
+    """
+
     for video in liked_videos['items']:
         newVid = LikedVideo(
                 user_id = user.id,
@@ -184,20 +255,32 @@ def save_liked_videos(liked_videos, user):
                 )
         db.session.add(newVid)
     db.session.commit()
+
     return
 
 def import_liked_videos(user):
+    """
+    Combines functions to get liked videos from API and save to database
+    """
+
     likes = get_liked_videos(user)
     save_liked_videos(likes, user)
+
     return
 
 def get_subscriptions(user, page=None):
+    """
+    Authenticated API request to get user's subscriptions
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
+    # Request parameters
     request = youtube.subscriptions().list(
             part="snippet",
             mine=True,
@@ -205,14 +288,21 @@ def get_subscriptions(user, page=None):
             order='alphabetical',
             pageToken=page
             )
+
+    # Recursive requests append to original response object until no data left
     response = request.execute()
     if 'nextPageToken' in response:
         pageToken = response['nextPageToken']
         newResponse = get_subscriptions(user, pageToken)
         response['items'].extend(newResponse['items'])
+
     return response
 
 def save_subscriptions(subscriptions, user):
+    """
+    Saves subscriptions data from YouTube API response to database
+    """
+
     for sub in subscriptions['items']:
         newSub = Subscription(
                 user_id = user.id,
@@ -223,29 +313,50 @@ def save_subscriptions(subscriptions, user):
                 )
         db.session.add(newSub)
     db.session.commit()
+
     return
 
 def import_subscriptions(user):
+    """
+    Combines functions to get subscriptions from API and save to database
+    """
+
     subs = get_subscriptions(user)
     save_subscriptions(subs, user)
 
+    return
+
 
 def get_access_token(code, state):
+    """
+    OAuth API reqest to exchange access code for access token
+    """
+
+    # Build service object
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
             client_config=CLIENT_CONFIG,
             scopes=SCOPES,
             state=state)
     flow.redirect_uri = 'https://yt-data-migrator.herokuapp.com/auth/google/callback'
 
+    # Make request
     flow.fetch_token(code=code)
 
+    # Credentials are saved to service object
     return flow.credentials
 
 def save_credentials(response, user):
+    """
+    Saves credentials to database for user
+    """
+
+    # Overwrite credentials if already exist
     try:
         creds = Credential.query.filter_by(user_id=user.id).first_or_404()
         creds.token = response.token
         creds.refresh_token = response.refresh_token
+
+    # Save credentials to database
     except:
         newCreds = Credential(
                 user_id = user.id,
@@ -254,15 +365,22 @@ def save_credentials(response, user):
                 )
         db.session.add(newCreds)
     db.session.commit()
+
     return
 
 def export_subscription(channel, user):
+    """
+    Authenticated API request to subscribe to a channel
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
+    # Request parameters
     request = youtube.subscriptions().insert(
             part="snippet",
             body={
@@ -275,29 +393,43 @@ def export_subscription(channel, user):
                 }
             )
     request.execute()
+     
     return
 
 def export_rating(video, user):
+    """
+    Authenticated API request to upvote a single video
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
+    # Request parameters
     request = youtube.videos().rate(
             id=video.video_id,
             rating="like"
             )
     request.execute()
+
     return
 
 def export_playlist(playlist, user):
+    """
+    Authenticated API request to create a single playlist
+    """
+
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
+    # Request parameters
     request = youtube.playlists().insert(
             part="snippet, status",
             body={
@@ -310,15 +442,21 @@ def export_playlist(playlist, user):
                 }
             )
     response = request.execute()
+
     return response
 
 def export_playlist_vid(videoId, playlistId, user):
+    """
+    Authenticated API request to add a single video to a playlist
+    """
     # Get credentials
     credentials = get_credentials(user.id)
+
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
+    # Request parameters
     request = youtube.playlistItems().insert(
             part="snippet",
             body={
@@ -332,4 +470,5 @@ def export_playlist_vid(videoId, playlistId, user):
                 }
             )
     request.execute()
+
     return

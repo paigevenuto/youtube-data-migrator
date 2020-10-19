@@ -31,7 +31,10 @@ connect_db(app)
 db.create_all()
 
 def get_session_user():
-    
+    """
+    Returns the username from the session as a string
+    """
+
     # Check token for username
     authtoken = session['auth']
     authtoken = jwt.decode(authtoken, JWT_KEY)
@@ -39,12 +42,18 @@ def get_session_user():
     return username
 
 def get_user(username):
+    """
+    Returns a user object
+    """
+
     user = User.query.filter_by(username=username).first_or_404()
     return user
 
 def create_login_token(username):
+    """
+    Save login session to JWT token
+    """
 
-    # Save login to JWT token
     token = {
             'user' : username,
             'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
@@ -56,8 +65,9 @@ def create_login_token(username):
 def login_required(function):
     @wraps(function)
     def wrapper(*args, **kwargs): 
-
-        # Check if username in JWT token is correct or go to login screen
+        """
+        Checks if username in JWT token is correct or sends to login screen
+        """
         try:
             username = get_session_user()
             user = get_user(username)
@@ -85,20 +95,23 @@ def privacyPolicy():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    """
+    Login page and form logic
+    """
 
     # Dictionary for potential login errors
     errors = {
-        'username' : {
-            'error' : '',
-            'labelclass' : '',
-            'icon' : ''
-            },
-        'password' : {
-            'error' : '',
-            'labelclass' : '',
-            'icon' : ''
+            'username' : {
+                'error' : '',
+                'labelclass' : '',
+                'icon' : ''
+                },
+            'password' : {
+                'error' : '',
+                'labelclass' : '',
+                'icon' : ''
+                }
             }
-        }
     form = AddLoginForm()
 
     # Check for CSRF
@@ -124,17 +137,21 @@ def login():
             errors['username']['labelclass'] = 'mdc-text-field--invalid'
             errors['username']['icon'] = 'error'
     return render_template('login.html', form=form, errors=errors)
-    
+
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
+    """
+    Sign-Up page and form logic
+    """
+
     # Template for potential login errors
     errors = {
-        'username' : {
-            'error' : '',
-            'labelclass' : '',
-            'icon' : ''
-            },
-        }
+            'username' : {
+                'error' : '',
+                'labelclass' : '',
+                'icon' : ''
+                },
+            }
 
     # Check for CSRF
     form = AddSignUpForm()
@@ -144,7 +161,7 @@ def signup():
         username = form.username.data
         password = form.password.data
         privacyAgree = form.privacyAgree.data
-        
+
         # Check if user already exists
         try:
             userExists = get_user(username)
@@ -152,7 +169,7 @@ def signup():
                 userExists = True
         except:
             userExists = False
-        
+
         # Error message for a missing user
         if userExists:
             errors['username']['error'] = 'User already exists!'
@@ -185,6 +202,10 @@ def signup():
 @app.route('/auth/google/signin')
 @login_required
 def authenticate():
+    """
+    Redirects to OAuth 2.0 flow link
+    """
+
     # Generate authorization_url and state token
     authorization_url = ytmapi.get_authorization_url()
 
@@ -197,20 +218,24 @@ def authenticate():
 @app.route('/auth/google/callback')
 @login_required
 def auth():
+    """
+    OAuth 2.0 flow callback logic
+    """
+
     # Ensure that the request is not a forgery and that the user sending this connect request is the expected user.
     if request.args.get('state', '') != session['state']:
-      response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
       response.headers['Content-Type'] = 'application/json'
       return response
 
-    # Retreive auth code from query or return error
+  # Retreive auth code from query or return error
     auth_code = request.args.get('code', '')
     if auth_code == '':
-      response = make_response(json.dumps(request.args['error']), 401)
+        response = make_response(json.dumps(request.args['error']), 401)
       response.headers['Content-Type'] = 'application/json'
       return response
 
-    # Turn auth code into an access token
+  # Turn auth code into an access token
     state = request.args['state']
 
     # Grab user info
@@ -226,15 +251,19 @@ def auth():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    """
+    Main application interface
+    """
+
     # Grab user info
     username = get_session_user()
     user = get_user(username) 
-    
+
     # Grab user's data
     likeslist = LikedVideo.query.filter_by(user_id=user.id).all()
     subslist = Subscription.query.filter_by(user_id=user.id).all()
     playlistlist = Playlist.query.filter_by(user_id=user.id).all()
-    
+
     # Add forms
     delAccForm = AddDelAccForm()
     selectionForm = AddSelectionForm()
@@ -245,6 +274,10 @@ def dashboard():
 @app.route('/delacc', methods=["POST"])
 @login_required
 def delAcc():
+    """
+    Form route for deleting user from database
+    """
+
     # Check for CSRF
     delAccForm = AddDelAccForm()
     if delAccForm.validate_on_submit():
@@ -262,6 +295,10 @@ def delAcc():
 @app.route('/delete', methods=["POST"])
 @login_required
 def deleteSelection():
+    """
+    Form route for deleting selected data from database
+    """
+
     # Check for CSRF
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
@@ -290,6 +327,10 @@ def deleteSelection():
 @app.route('/logout')
 @login_required
 def logout():
+    """
+    Link to log out
+    """
+
     # Remove JWT login token
     session.clear()
     return redirect('/')
@@ -297,6 +338,10 @@ def logout():
 @app.route('/import', methods=["POST"])
 @login_required
 def importData():
+    """
+    Form route for importing selected data
+    """
+
     # Check for CSRF
     importForm = AddImportForm()
     if importForm.validate_on_submit():
@@ -318,6 +363,10 @@ def importData():
 @app.route("/download-json", methods=["POST"])
 @login_required
 def downloadJson():
+    """
+    Form route to download selected data as a file
+    """
+
     # Check for CSRF
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
@@ -374,7 +423,11 @@ def downloadJson():
 @app.route("/export", methods=["POST"])
 @login_required
 def exportData():
-   # Check for CSRF
+    """
+    Form route to export selected data
+    """
+
+    # Check for CSRF
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
 
