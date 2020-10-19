@@ -262,6 +262,7 @@ def export_subscription(channel, user):
             body={
                 "snippet": {
                     "resourceId": {
+                        "kind": "youtube#channel",
                         "channelId": channel.resource_id
                         }
                     }
@@ -279,12 +280,12 @@ def export_rating(video, user):
             api_service_name, api_version, credentials=credentials)
 
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials)
 
     request = youtube.videos().rate(
-        id=video.video_id,
-        rating="like"
-    )
+            id=video.video_id,
+            rating="like"
+            )
     request.execute()
     return
 
@@ -296,20 +297,20 @@ def export_playlist(playlist, user):
             api_service_name, api_version, credentials=credentials)
 
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials)
 
     request = youtube.playlists().insert(
-        part="id, snippet, status",
-        body={
-          "snippet": {
-            "title": playlist.title,
-            "description": playlist.description
-          },
-          "status": {
-            "privacyStatus": playlist.privacy_status
-          }
-        }
-    )
+            part="id, snippet, status",
+            body={
+                "snippet": {
+                    "title": playlist.title,
+                    "description": playlist.description
+                    },
+                "status": {
+                    "privacyStatus": playlist.privacy_status
+                    }
+                }
+            )
     response = request.execute()
     return
 
@@ -321,18 +322,19 @@ def export_playlist_vid(videoId, playlistId, user):
             api_service_name, api_version, credentials=credentials)
 
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials)
 
     request = youtube.playlistItems().insert(
-        part="snippet",
-        body={
-          "snippet": {
-            "playlistId": playlistId
-            "resourceId": {
-              "videoId": videoId
-            }
-          }
-        }
-    )
+            part="snippet",
+            body={
+                "snippet": {
+                    "playlistId": playlistId,
+                    "resourceId": {
+                        "kind" : "youtube#video",
+                        "videoId": videoId
+                        }
+                    }
+                }
+            )
     response = request.execute()
     return
