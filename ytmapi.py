@@ -152,7 +152,7 @@ def get_liked_videos(user, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
     request = youtube.videos().list(
             part="snippet",
             myRating="like",
@@ -189,7 +189,7 @@ def get_subscriptions(user, page=None):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.subscriptions().list(
             part="snippet",
@@ -253,10 +253,7 @@ def export_subscription(channel, user):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.subscriptions().insert(
             body={
@@ -277,10 +274,7 @@ def export_rating(video, user):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.videos().rate(
             id=video.video_id,
@@ -294,10 +288,7 @@ def export_playlist(playlist, user):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.playlists().insert(
             part="id, snippet, status",
@@ -319,10 +310,7 @@ def export_playlist_vid(videoId, playlistId, user):
     credentials = get_credentials(user.id)
     # Build the service object
     youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+            api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.playlistItems().insert(
             part="snippet",
