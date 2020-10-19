@@ -302,8 +302,8 @@ def export_playlist(playlist, user):
                     }
                 }
             )
-    request.execute()
-    return
+    response = request.execute()
+    return response
 
 def export_playlist_vid(videoId, playlistId, user):
     # Get credentials
@@ -324,5 +324,4 @@ def export_playlist_vid(videoId, playlistId, user):
                     }
                 }
             )
-    request.execute()
     return

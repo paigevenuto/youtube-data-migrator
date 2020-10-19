@@ -344,10 +344,8 @@ def exportData():
                 response = ytmapi.export_playlist(playlist, user)
                 playlist_items = PlaylistVideo.query.filter_by(playlist_id=playlist.id).all()
                 playlist_contents = list(map(lambda x: x.video_id, playlist_items))
-                status_code = getattr(response, 'status_code')
-                if status_code == 200:
-                    for videoId in playlist_contents:
-                        ytmapi.export_playlist_vid(videoId, playlist.resource_id, user)
+                for videoId in playlist_contents:
+                    ytmapi.export_playlist_vid(videoId, response['id'], user)
     return 'This may take a while, please wait for results'
 
 serve(app, port=PORT)
