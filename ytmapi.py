@@ -82,6 +82,7 @@ def get_playlists(user, page=None):
     # Build the service object
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials, cache_discovery=False)
+
     request = youtube.playlists().list(
             part="snippet, status",
             maxResults=50,
@@ -265,8 +266,7 @@ def export_subscription(channel, user):
                     }
                 }
             )
-    response = request.execute()
-
+    request.execute()
     return
 
 def export_rating(video, user):
@@ -302,7 +302,7 @@ def export_playlist(playlist, user):
                     }
                 }
             )
-    response = request.execute()
+    request.execute()
     return
 
 def export_playlist_vid(videoId, playlistId, user):
@@ -324,5 +324,5 @@ def export_playlist_vid(videoId, playlistId, user):
                     }
                 }
             )
-    response = request.execute()
+    request.execute()
     return
