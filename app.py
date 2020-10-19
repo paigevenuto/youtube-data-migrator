@@ -341,11 +341,13 @@ def exportData():
                 ytmapi.export_subscription(channel, user)
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
-                ytmapi.export_playlist(playlist, user)
+                response = ytmapi.export_playlist(playlist, user)
                 playlist_items = PlaylistVideo.query.filter_by(playlist_id=playlist.id).all()
                 playlist_contents = list(map(lambda x: x.video_id, playlist_items))
-                for videoId in playlist_contents:
-                    ytmapi.export_playlist_vid(videoId, playlist.resource_id, user)
+                status_code = getattr(response, 'status_code')
+                if status_code == 200:
+                    for videoId in playlist_contents:
+                        ytmapi.export_playlist_vid(videoId, playlist.resource_id, user)
     return 'This may take a while, please wait for results'
 
 serve(app, port=PORT)
