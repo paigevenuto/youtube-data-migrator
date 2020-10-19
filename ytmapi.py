@@ -324,4 +324,5 @@ def export_playlist_vid(videoId, playlistId, user):
                     }
                 }
             )
+    request.execute()
     return
