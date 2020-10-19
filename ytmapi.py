@@ -261,7 +261,7 @@ def export_subscription(channel, user):
                 "snippet": {
                     "resourceId": {
                         "kind": "youtube#channel",
-                        "channelId": channel.resource_id
+                        "channelId": channel.channel_id
                         }
                     }
                 }
@@ -294,8 +294,7 @@ def export_playlist(playlist, user):
             part="id, snippet, status",
             body={
                 "snippet": {
-                    "title": playlist.title,
-                    "description": playlist.description
+                    "title": playlist.title
                     },
                 "status": {
                     "privacyStatus": playlist.privacy_status
