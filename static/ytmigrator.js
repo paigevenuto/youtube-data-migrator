@@ -1,20 +1,4 @@
 $(function () {
-  function handleAuthWIndow() {
-    let authURL = window.open(
-      "/auth/google/signin",
-      "authURL",
-      "width=400,height=600"
-    );
-    function checkIfComplete() {
-      if (authURL.location.href.includes("login")) {
-        postMessage("closeNow", targetOrigin);
-      }
-      return;
-    }
-    setInterval(checkIfComplete, 500);
-    return;
-  }
-
   for (btn of $(".btn")) {
     mdc.ripple.MDCRipple.attachTo(btn);
   }
@@ -130,7 +114,8 @@ $(function () {
     document.querySelector("#import-form-dialog")
   );
   function importPopup() {
-    handleAuthWIndow();
+    window.open("/auth/google/signin", "authURL", "width=400,height=600");
+
     importOauthDialog.open();
   }
   $("#import-more-btn").click(importPopup);
@@ -160,7 +145,8 @@ $(function () {
   );
   $("#export-choice-btn").click(() => {
     exportChoiceDialog.close();
-    handleAuthWIndow();
+    window.open("/auth/google/signin", "authURL", "width=400,height=600");
+
     exportOauthDialog.open();
   });
   let exportFormDialog = new mdc.dialog.MDCDialog(

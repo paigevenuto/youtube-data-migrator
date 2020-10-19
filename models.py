@@ -32,6 +32,7 @@ class Subscription(db.Model):
     channel_id = db.Column( db.Text, nullable=False)
     title = db.Column( db.Text, nullable=False)
     thumbnail = db.Column( db.Text, nullable=False)
+    expiration_data( db.Float, nullable=False )
 
 class LikedVideo(db.Model):
     """liked Video."""
@@ -44,6 +45,7 @@ class LikedVideo(db.Model):
     title = db.Column( db.Text, nullable=False)
     channel_title = db.Column( db.Text, nullable=False)
     thumbnail = db.Column( db.Text, nullable=False)
+    expiration_data( db.Float, nullable=False )
 
 class Playlist(db.Model):
     """Playlist."""
@@ -57,6 +59,7 @@ class Playlist(db.Model):
     thumbnail = db.Column( db.Text, nullable=False)
     privacy_status = db.Column( db.Text, nullable=False)
     playlist_videos = db.relationship('PlaylistVideo', backref='playlists', cascade='all, delete-orphan')
+    expiration_data( db.Float, nullable=False )
 
 class PlaylistVideo(db.Model):
     """PlaylistVideo."""

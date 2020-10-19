@@ -41,6 +41,10 @@ SCOPES = ["openid",
         "https://www.googleapis.com/auth/youtubepartner-channel-audit"]
 
 
+def make_expiration_date():
+    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=14)
+    return expiration.timestamp()
+
 def get_credentials(user_id):
     token = Credential.query.filter_by(user_id=user_id).first_or_404()
     credentials = google.oauth2.credentials.Credentials(
@@ -122,7 +126,8 @@ def save_playlists(playlists, user):
                 resource_id = playlist['id'],
                 title = playlist['snippet']['title'],
                 thumbnail = playlist['snippet']['thumbnails']['default']['url'],
-                privacy_status = playlist['status']['privacyStatus']
+                privacy_status = playlist['status']['privacyStatus'],
+                expiration_date = make_expiration_date()
                 )
         db.session.add(newPlaylist)
     db.session.commit()
@@ -174,7 +179,8 @@ def save_liked_videos(liked_videos, user):
                 video_id = video['id'],
                 title = video['snippet']['title'],
                 channel_title = video['snippet']['channelTitle'],
-                thumbnail = video['snippet']['thumbnails']['default']['url']
+                thumbnail = video['snippet']['thumbnails']['default']['url'],
+                expiration_date = make_expiration_date()
                 )
         db.session.add(newVid)
     db.session.commit()
@@ -212,7 +218,8 @@ def save_subscriptions(subscriptions, user):
                 user_id = user.id,
                 channel_id = sub['snippet']['resourceId']['channelId'],
                 title = sub['snippet']['title'],
-                thumbnail = sub['snippet']['thumbnails']['default']['url']
+                thumbnail = sub['snippet']['thumbnails']['default']['url'],
+                expiration_date = make_expiration_date()
                 )
         db.session.add(newSub)
     db.session.commit()
