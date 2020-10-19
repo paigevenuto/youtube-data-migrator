@@ -31,6 +31,8 @@ connect_db(app)
 db.create_all()
 
 def get_session_user():
+    
+    # Check token for username
     authtoken = session['auth']
     authtoken = jwt.decode(authtoken, JWT_KEY)
     username = authtoken['user']
@@ -41,6 +43,8 @@ def get_user(username):
     return user
 
 def create_login_token(username):
+
+    # Save login to JWT token
     token = {
             'user' : username,
             'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=14),
@@ -51,7 +55,9 @@ def create_login_token(username):
 
 def login_required(function):
     @wraps(function)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs): 
+
+        # Check if username in JWT token is correct or go to login screen
         try:
             username = get_session_user()
             user = get_user(username)
@@ -62,6 +68,7 @@ def login_required(function):
         except:
             return redirect('/login')
         return redirect('/login')
+
     return wrapper
 
 @app.route('/')
@@ -94,7 +101,7 @@ def login():
         }
     form = AddLoginForm()
 
-    # CSRF check
+    # Check for CSRF
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
@@ -120,7 +127,7 @@ def login():
     
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
-    # Dictionary for potential login errors
+    # Template for potential login errors
     errors = {
         'username' : {
             'error' : '',
@@ -129,6 +136,7 @@ def signup():
             },
         }
 
+    # Check for CSRF
     form = AddSignUpForm()
     if form.validate_on_submit():
 
@@ -145,11 +153,13 @@ def signup():
         except:
             userExists = False
         
+        # Error message for a missing user
         if userExists:
             errors['username']['error'] = 'User already exists!'
             errors['username']['labelclass'] = 'mdc-text-field--invalid'
             errors['username']['icon'] = 'error'
 
+        # Condition for valid input
         if not userExists and privacyAgree:
             # Hash password
             hash = bcrypt.generate_password_hash(password)
@@ -181,13 +191,13 @@ def authenticate():
     # Save current state to user's session
     session['state'] = authorization_url[1]
     url = authorization_url[0]
+
     return redirect(url)
 
 @app.route('/auth/google/callback')
 @login_required
 def auth():
-    # Ensure that the request is not a forgery and that the user sending
-    # this connect request is the expected user.
+    # Ensure that the request is not a forgery and that the user sending this connect request is the expected user.
     if request.args.get('state', '') != session['state']:
       response = make_response(json.dumps('Invalid state parameter.'), 401)
       response.headers['Content-Type'] = 'application/json'
@@ -202,22 +212,30 @@ def auth():
 
     # Turn auth code into an access token
     state = request.args['state']
+
+    # Grab user info
     username = get_session_user()
     user = get_user(username)
+
+    # Pass access token to api client
     credentials = ytmapi.get_access_token(auth_code, state)
     ytmapi.save_credentials(credentials, user)
+
     return 'Account successfully linked. You may now close this window.'
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Grab user info
     username = get_session_user()
     user = get_user(username) 
     
+    # Grab user's data
     likeslist = LikedVideo.query.filter_by(user_id=user.id).all()
     subslist = Subscription.query.filter_by(user_id=user.id).all()
     playlistlist = Playlist.query.filter_by(user_id=user.id).all()
     
+    # Add forms
     delAccForm = AddDelAccForm()
     selectionForm = AddSelectionForm()
     importForm = AddImportForm()
@@ -227,23 +245,36 @@ def dashboard():
 @app.route('/delacc', methods=["POST"])
 @login_required
 def delAcc():
+    # Check for CSRF
     delAccForm = AddDelAccForm()
     if delAccForm.validate_on_submit():
+
+        # Grab user info
         username = get_session_user()
         user = get_user(username)
+
+        # Delete user from DB
         db.session.delete(user)
         db.session.commit()
+
     return redirect("/")
 
 @app.route('/delete', methods=["POST"])
 @login_required
 def deleteSelection():
+    # Check for CSRF
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
+
+        # Grab user info
         username = get_session_user()
         user = get_user(username)
+
+        # Grab form data
         items = request.form.to_dict()
         items.pop("csrf_token")
+
+        # Query items and delete from database
         for item in items.keys():
             if item[-7:] == 'videoid':
                 LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).delete()
@@ -253,39 +284,53 @@ def deleteSelection():
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
                 db.session.delete(playlist)
         db.session.commit()
+
     return redirect("/dashboard")
 
 @app.route('/logout')
 @login_required
 def logout():
+    # Remove JWT login token
     session.clear()
     return redirect('/')
 
 @app.route('/import', methods=["POST"])
 @login_required
 def importData():
+    # Check for CSRF
     importForm = AddImportForm()
     if importForm.validate_on_submit():
+
+        # Grab user info
         username = get_session_user()
         user = get_user(username)
+
+        # Run api client imports for selected categories
         if importForm.subscriptions.data:
             ytmapi.import_subscriptions(user)
         if importForm.likedVideos.data:
             ytmapi.import_liked_videos(user)
         if importForm.playlists.data:
             ytmapi.import_playlists(user)
+
     return redirect('/dashboard')
 
 @app.route("/download-json", methods=["POST"])
 @login_required
 def downloadJson():
+    # Check for CSRF
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
+
+        # Grab user info
         username = get_session_user()
         user = get_user(username)
+
+        # Grab form data
         items = request.form.to_dict()
+
+        # Query items from form and put into dictionary
         items.pop("csrf_token")
-        fd, filepath = tempfile.mkstemp()
         data = {
                 "liked_videos":[],
                 "subscriptions":[],
@@ -319,19 +364,29 @@ def downloadJson():
                         }
                 data['playlists'].append(playlistDict)
 
+        # Make tempfile and write dictionary as JSON
+        fd, filepath = tempfile.mkstemp()
         with os.fdopen(fd, "w") as f:
             json.dump(data, f)
+
     return send_file(filepath, as_attachment=True, attachment_filename="Your_YouTube_Data.json")
 
 @app.route("/export", methods=["POST"])
 @login_required
 def exportData():
+   # Check for CSRF
     selectionform = AddSelectionForm()
     if selectionform.validate_on_submit():
+
+        # Grab user info
         username = get_session_user()
         user = get_user(username)
+
+        # Grab form data
         items = request.form.to_dict()
         items.pop("csrf_token")
+
+        # Query items from form and export using api client
         for item in items.keys():
             if item[-7:] == 'videoid':
                 video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).first_or_404()
@@ -349,6 +404,8 @@ def exportData():
                 playlist_contents = list(map(lambda x: x.video_id, playlist_items))
                 for videoId in playlist_contents:
                     ytmapi.export_playlist_vid(videoId, response['id'], user)
-    return 'This may take a while, please wait for results'
 
+    return redirect('/dashboard')
+
+# Web Server
 serve(app, port=PORT)
