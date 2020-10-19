@@ -173,7 +173,7 @@ def signup():
 
 
 @app.route('/auth/google/signin')
- @login_required
+@login_required
 def authenticate():
     # Generate authorization_url and state token
     authorization_url = ytmapi.get_authorization_url()
