@@ -175,11 +175,6 @@ def signup():
 @app.route('/auth/google/signin')
 # @login_required
 def authenticate():
-    # Clear token as a precaution
-    username = get_session_user()
-    user = get_user(username)
-    ytmapi.revoke_creds(user)
-
     # Generate authorization_url and state token
     authorization_url = ytmapi.get_authorization_url()
 
@@ -340,10 +335,17 @@ def exportData():
         for item in items.keys():
             if item[-7:] == 'videoid':
                 video = LikedVideo.query.filter_by(user_id=user.id).filter_by(video_id=item[:-7]).first_or_404()
+                ytmapi.export_rating(video, user)
             elif item[-7:] == 'channel':
                 channel = Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).first_or_404()
+                ytmapi.export_subscription(channel, user)
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
+                ytmapi.export_playlist(playlist, user)
+                playlist_items = PlaylistVideo.query.filter_by(playlist_id=playlist.id).all()
+                playlist_contents = list(map(lambda x: x.video_id, playlist_items))
+                for videoId in playlist_contents:
+                    ytmapi.export_playlist_vid(videoId, playlist.resource_id, user)
     return 'This may take a while, please wait for results'
 
 serve(app, port=PORT)

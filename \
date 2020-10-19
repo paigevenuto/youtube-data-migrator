@@ -249,12 +249,6 @@ def save_credentials(response, user):
     return
 
 def export_subscription(channel, user):
-    # Get credentials
-    credentials = get_credentials(user.id)
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
     youtube = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials)
 
@@ -272,67 +266,10 @@ def export_subscription(channel, user):
     return
 
 def export_rating(video, user):
-    # Get credentials
-    credentials = get_credentials(user.id)
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-
-    request = youtube.videos().rate(
-        id=video.video_id
-        rating="like"
-    )
-    request.execute()
     return
 
 def export_playlist(playlist, user):
-    # Get credentials
-    credentials = get_credentials(user.id)
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-
-    request = youtube.playlists().insert(
-        part="id, snippet, status",
-        body={
-          "snippet": {
-            "title": playlist.title,
-            "description": playlist.description
-          },
-          "status": {
-            "privacyStatus": playlist.privacy_status
-          }
-        }
-    )
-    response = request.execute()
     return
 
-def export_playlist_vid(videoId, playlistId, user):
-    # Get credentials
-    credentials = get_credentials(user.id)
-    # Build the service object
-    youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-
-    request = youtube.playlistItems().insert(
-        part="snippet",
-        body={
-          "snippet": {
-            "playlistId": playlistId
-            "resourceId": {
-              "videoId": videoId
-            }
-          }
-        }
-    )
-    response = request.execute()
+def export_playlist_vid(videoId, user):
     return
