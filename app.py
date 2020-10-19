@@ -338,7 +338,10 @@ def exportData():
                 ytmapi.export_rating(video, user)
             elif item[-7:] == 'channel':
                 channel = Subscription.query.filter_by(user_id=user.id).filter_by(channel_id=item[:-7]).first_or_404()
-                ytmapi.export_subscription(channel, user)
+                try:
+                    ytmapi.export_subscription(channel, user)
+                except:
+                    pass
             elif item[-7:] == 'playlis':
                 playlist = Playlist.query.filter_by(user_id=user.id).filter_by(resource_id=item[:-7]).first_or_404()
                 response = ytmapi.export_playlist(playlist, user)
