@@ -225,17 +225,19 @@ def auth():
     # Ensure that the request is not a forgery and that the user sending this connect request is the expected user.
     if request.args.get('state', '') != session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
-      response.headers['Content-Type'] = 'application/json'
-      return response
+        response.headers['Content-Type'] = 'application/json'
 
-  # Retreive auth code from query or return error
+        return response
+
+    # Retreive auth code from query or return error
     auth_code = request.args.get('code', '')
     if auth_code == '':
         response = make_response(json.dumps(request.args['error']), 401)
-      response.headers['Content-Type'] = 'application/json'
-      return response
+        response.headers['Content-Type'] = 'application/json'
 
-  # Turn auth code into an access token
+        return response
+
+    # Turn auth code into an access token
     state = request.args['state']
 
     # Grab user info
