@@ -35,6 +35,8 @@ def get_session_user():
     Returns the username from the session as a string
     """
 
+    if app.config['TESTING'] == True:
+        return 'testuser'
     # Check token for username
     authtoken = session['auth']
     authtoken = jwt.decode(authtoken, JWT_KEY)
@@ -311,7 +313,10 @@ def deleteSelection():
 
         # Grab form data
         items = request.form.to_dict()
-        items.pop("csrf_token")
+        try:
+            items.pop("csrf_token")
+        except:
+            pass
 
         # Query items and delete from database
         for item in items.keys():
