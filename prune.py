@@ -13,13 +13,13 @@ connect_db(app)
 db.create_all()
 
 timenow = datetime.datetime.utcnow().timestamp()
-vids = LikedVideo.query.filter(LikedVideo.expiration_date >= timenow).all()
+vids = LikedVideo.query.filter(LikedVideo.expiration_date <= timenow).all()
 for vid in vids:
     db.session.delete(vid)
-subs = Subscription.query.filter(Subscription.expiration_date >= timenow).all()
+subs = Subscription.query.filter(Subscription.expiration_date <= timenow).all()
 for sub in subs:
     db.session.delete(sub)
-lists = Playlist.query.filter(Playlist.expiration_date >= timenow).all()
+lists = Playlist.query.filter(Playlist.expiration_date <= timenow).all()
 for plist in lists:
     db.session.delete(plist)
 
