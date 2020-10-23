@@ -1,5 +1,9 @@
 from models import db, connect_db, User, Subscription, LikedVideo, Playlist, PlaylistVideo, Credential
 import datetime
+import os
+from flask import Flask
+
+app = Flask(__name__)
 
 DATABASE_URL = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
@@ -10,10 +14,13 @@ db.create_all()
 
 timenow = datetime.datetime.utcnow().timestamp()
 vids = LikedVideo.query.filter(LikedVideo.expiration_date >= timenow).all()
-db.session.delete(vids)
+for vid in vids:
+    db.session.delete(vid)
 subs = Subscription.query.filter(Subscription.expiration_date >= timenow).all()
-db.session.delete(subs)
+for sub in subs:
+    db.session.delete(sub)
 lists = Playlist.query.filter(Playlist.expiration_date >= timenow).all()
-db.session.delete(lists)
+for plist in lists:
+    db.session.delete(plist)
 
 db.session.commit()
