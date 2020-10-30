@@ -77,7 +77,7 @@ user-provided file.
 
 ## User Flow
 
-![User Flow](./readme/userflow.png)
+![User Flow](./readme/userflow.jpg)
 
 ## Database Schema
 
