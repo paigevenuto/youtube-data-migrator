@@ -23,16 +23,17 @@ revoking this app's permissions in the Google security settings.
 
 ## Goal
 
-This app aims to migrate data between YouTube accounts by importing and
-exporting data through the app with the assistance of the YouTube API.
+This app aims to migrate data between YouTube accounts conveniently and easily,
+by importing and exporting data through the app with the assistance of the
+YouTube API.
 
 [Google Identity](https://developers.google.com/identity/sign-in/web/sign-in)  
 [YouTube Data API v3](https://developers.google.com/youtube/v3/getting-started)
 
-The interface is intended to be very simple, familiar, and mobile-friendly to
-appeal to the average user.  Target users Users who may want to retire an old
-Google account would encounter difficulty due to transferring YouTube data
-(playlists, likes, watch later, subscriptions) to a new Google account.
+The interface is intended to be very simple, familiar, and mobile-friendly.
+Target users include those who may want to retire an old
+Google account, but would encounter difficulty due to needing to transfer
+YouTube data to a new account manually.
 
 ## Data needs
 
